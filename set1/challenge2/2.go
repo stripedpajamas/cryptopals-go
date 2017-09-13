@@ -11,11 +11,11 @@ func Xor(a, b string) (string, error) {
 	}
 	aBytes, err := hex.DecodeString(a)
 	if err != nil {
-		return "", errors.New("Failed to decode hex string input A")
+		panic(err)
 	}
 	bBytes, err := hex.DecodeString(b)
 	if err != nil {
-		return "", errors.New("Failed to decode hex string input B")
+		panic(err)
 	}
 
 	aLen := len(aBytes)

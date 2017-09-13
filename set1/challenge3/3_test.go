@@ -35,8 +35,8 @@ func TestCrackSingleKeyXOR(t *testing.T) {
 	c3input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	c3ExpectedOutput := "Cooking MC's like a pound of bacon"
 
-	c3output, err := CrackSingleKeyXOR(c3input)
-	if err != nil || c3output.text != c3ExpectedOutput {
+	c3output := CrackSingleKeyXOR(c3input)
+	if c3output.Text != c3ExpectedOutput {
 		t.Fail()
 	}
 }

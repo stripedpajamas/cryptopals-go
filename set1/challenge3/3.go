@@ -9,9 +9,9 @@ import (
 )
 
 type Processed struct {
-	key	[]byte
-	text	string
-	score	float64
+	Key	[]byte
+	Text	string
+	Score	float64
 }
 
 func ScoreString(s string) float64 {
@@ -59,7 +59,12 @@ func ScoreString(s string) float64 {
 	// and compare to the standard
 	for _, letter := range input {
 		freq := inputMap[letter] / inputLen
-		finalScore += math.Abs(letterFrequency[letter] - freq)
+		if letterFrequency[letter] != 0 {
+			finalScore += math.Abs(letterFrequency[letter] - freq)
+		} else {
+			// the letter was not found, so bump it up
+			finalScore += 1
+		}
 	}
 
 	// generate an average
@@ -83,11 +88,11 @@ func XorBytes(a, b []byte) ([]byte, error) {
 	return output, nil
 }
 
-func CrackSingleKeyXOR(hexString string) (*Processed, error) {
+func CrackSingleKeyXOR(hexString string) *Processed {
 	decodedInputs := map[byte]*Processed{}
 	inputBytes, err := hex.DecodeString(hexString)
 	if err != nil {
-		return nil, errors.New("Failed to decode input hex string")
+		panic(err)
 	}
 
 	inputLen := len(inputBytes)
@@ -97,22 +102,22 @@ func CrackSingleKeyXOR(hexString string) (*Processed, error) {
 		key := bytes.Repeat([]byte{i}, inputLen)
 		xored, err := XorBytes(inputBytes, key)
 		if err != nil {
-			return nil, errors.New("Failed to XOR input with key")
+			panic(err)
 		}
 		text := string(xored)
 		decodedInputs[i] = &Processed{
-			key: key,
-			text: text,
-			score: ScoreString(text),
+			Key: key,
+			Text: text,
+			Score: ScoreString(text),
 		}
 	}
 
 	// get the lowest score (the most like English)
 	var topScoredKey byte
 	for key, processedInput := range decodedInputs {
-		if processedInput.score < decodedInputs[topScoredKey].score {
+		if processedInput.Score < decodedInputs[topScoredKey].Score {
 			topScoredKey = key
 		}
 	}
-	return decodedInputs[topScoredKey], nil
+	return decodedInputs[topScoredKey]
 }
