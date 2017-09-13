@@ -1,8 +1,6 @@
 package challenge2
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestXor(t *testing.T) {
 	// http://cryptopals.com/sets/1/challenges/2

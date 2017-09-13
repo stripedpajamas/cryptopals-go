@@ -1,8 +1,6 @@
 package challenge1
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestHex2b64(t *testing.T) {
 	// http://cryptopals.com/sets/1/challenges/1
