@@ -2,6 +2,7 @@ package challenge4
 
 import (
 	"github.com/stripedpajamas/cryptopals/set1/challenge3"
+	"encoding/hex"
 )
 
 type Identified struct {
@@ -15,7 +16,11 @@ func DetectSingleKeyXor(hexStrings []string) *Identified {
 
 	// iterate through each encoded string and process it
 	for i, hexString := range hexStrings {
-		cracked := challenge3.CrackSingleKeyXOR(hexString)
+		hexBytes, err := hex.DecodeString(hexString)
+		if err != nil {
+			panic(err)
+		}
+		cracked := challenge3.CrackSingleKeyXOR(hexBytes)
 		processedStrings[i] = &Identified{
 			original:  hexString,
 			processed: cracked,

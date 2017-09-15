@@ -3,6 +3,7 @@ package challenge3
 import (
 	"testing"
 	"bytes"
+	"encoding/hex"
 )
 
 func TestScoreString(t *testing.T) {
@@ -24,8 +25,8 @@ func TestXorBytes(t *testing.T) {
 	c3inputB := []byte{104, 105, 116, 32, 116, 104, 101, 32, 98, 117, 108, 108, 39, 115, 32, 101, 121, 101}
 	c3ExpectedOutput := []byte{116, 104, 101, 32, 107, 105, 100, 32, 100, 111, 110, 39, 116, 32, 112, 108, 97, 121}
 
-	c3output, err := XorBytes(c3inputA, c3inputB)
-	if err != nil || bytes.Compare(c3output, c3ExpectedOutput) != 0 {
+	c3output := XorBytes(c3inputA, c3inputB)
+	if bytes.Compare(c3output, c3ExpectedOutput) != 0 {
 		t.Fail()
 	}
 }
@@ -33,9 +34,10 @@ func TestXorBytes(t *testing.T) {
 func TestCrackSingleKeyXOR(t *testing.T) {
 	// http://cryptopals.com/sets/1/challenges/2
 	c3input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+	c3inputBytes, _ := hex.DecodeString(c3input)
 	c3ExpectedOutput := "Cooking MC's like a pound of bacon"
 
-	c3output := CrackSingleKeyXOR(c3input)
+	c3output := CrackSingleKeyXOR(c3inputBytes)
 	if c3output.Text != c3ExpectedOutput {
 		t.Fail()
 	}

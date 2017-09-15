@@ -8,6 +8,7 @@ import (
 )
 
 func TestDetectSingleKeyXor(t *testing.T) {
+	// http://cryptopals.com/sets/1/challenges/4
 	encodedStrings, err := ioutil.ReadFile("4.txt")
 	if err != nil {
 		fmt.Println("Error:", err)
