@@ -48,3 +48,31 @@ func TestCrackRepeatingKeyXor(t *testing.T) {
 		t.Fail()
 	}
 }
+
+var benchmarkResult Cracked
+
+func BenchmarkCrackRepeatingKeyXor(b *testing.B) {
+	// set up
+	encodedBytes, err := ioutil.ReadFile("6.txt")
+	if err != nil {
+		fmt.Println("Error:", err)
+		b.Fail()
+	}
+
+	ciphertextBytes := make([]byte, len(encodedBytes))
+	bytesWritten, err := base64.StdEncoding.Decode(ciphertextBytes, encodedBytes)
+	if err != nil {
+		fmt.Println("Error:", err)
+		b.Fail()
+	}
+	ciphertextBytes = ciphertextBytes[:bytesWritten]
+
+	var c6output Cracked
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		c6output = CrackRepeatingKeyXor(ciphertextBytes)
+	}
+
+	benchmarkResult = c6output
+}

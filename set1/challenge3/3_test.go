@@ -42,3 +42,20 @@ func TestCrackSingleKeyXOR(t *testing.T) {
 		t.Fail()
 	}
 }
+
+var benchmarkResult *Processed
+
+func BenchmarkCrackSingleKeyXOR(b *testing.B) {
+	c3input := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+	c3inputBytes, _ := hex.DecodeString(c3input)
+
+	b.ResetTimer()
+
+	var c3output *Processed
+
+	for i := 0; i < b.N; i++ {
+		c3output = CrackSingleKeyXOR(c3inputBytes)
+	}
+
+	benchmarkResult = c3output
+}
