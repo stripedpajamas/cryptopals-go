@@ -11,20 +11,33 @@ type Identified struct {
 }
 
 func DetectSingleKeyXor(hexStrings []string) *Identified {
+	inputLength := len(hexStrings)
+
 	// create a container for the results
-	processedStrings := map[int]*Identified{}
+	processedStrings := make([]*Identified, inputLength)
+
+	// make a channel to notify when we're done cracking all the schmutz
+	doneCracking := make(chan bool, inputLength)
 
 	// iterate through each encoded string and process it
 	for i, hexString := range hexStrings {
-		hexBytes, err := hex.DecodeString(hexString)
-		if err != nil {
-			panic(err)
-		}
-		cracked := challenge3.CrackSingleKeyXOR(hexBytes)
-		processedStrings[i] = &Identified{
-			original:  hexString,
-			processed: cracked,
-		}
+		go func(i int, hexString string) {
+			hexBytes, err := hex.DecodeString(hexString)
+			if err != nil {
+				panic(err)
+			}
+			cracked := challenge3.CrackSingleKeyXOR(hexBytes)
+			processedStrings[i] = &Identified{
+				original:  hexString,
+				processed: cracked,
+			}
+			doneCracking <- true
+		}(i, hexString)
+	}
+
+	// wait for all the cracking goroutines to finish
+	for i := 0; i < inputLength; i++ {
+		<- doneCracking
 	}
 
 	// iterate through each of the processed strings and find the lowest score

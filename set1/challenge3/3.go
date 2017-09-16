@@ -57,27 +57,34 @@ func XorBytes(a, b []byte) []byte {
 }
 
 func CrackSingleKeyXOR(inputBytes []byte) *Processed {
-	decodedInputs := map[byte]*Processed{}
+	decodedInputs := make([]*Processed, 255)
 	inputLen := len(inputBytes)
 
-	var i byte = 0
+	doneCracking := make(chan bool, 255)
 
-	for ; i < 255; i++ {
-		key := bytes.Repeat([]byte{i}, inputLen)
-		xored := XorBytes(inputBytes, key)
-		text := string(xored)
-		decodedInputs[i] = &Processed{
-			Key:   i,
-			Text:  text,
-			Score: ScoreString(text),
-		}
+	for i := 0; i < 255; i++ {
+		go func(i int) {
+			singleByteKey := byte(i)
+			key := bytes.Repeat([]byte{singleByteKey}, inputLen)
+			xored := XorBytes(inputBytes, key)
+			text := string(xored)
+			decodedInputs[i] = &Processed{
+				Key:   singleByteKey,
+				Text:  text,
+				Score: ScoreString(text),
+			}
+			doneCracking <- true
+		}(i)
 	}
+
+	// wait for all the cracker goroutines to finish
+	for i := 0; i < 255; i++ { <- doneCracking }
 
 	// get the lowest score (the most like English)
 	var topScoredKey byte
-	for key, processedInput := range decodedInputs {
+	for _, processedInput := range decodedInputs {
 		if processedInput.Score < decodedInputs[topScoredKey].Score {
-			topScoredKey = key
+			topScoredKey = processedInput.Key
 		}
 	}
 	return decodedInputs[topScoredKey]

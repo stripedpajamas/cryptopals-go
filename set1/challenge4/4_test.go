@@ -28,6 +28,8 @@ func TestDetectSingleKeyXor(t *testing.T) {
 	c4output := DetectSingleKeyXor(hexSlices)
 
 	if c4output.original != c4expectedOutput || c4output.processed.Text != c4expectedText {
+		fmt.Println(c4output.original)
+		fmt.Println(c4output.processed.Text)
 		t.Fail()
 	}
 }
