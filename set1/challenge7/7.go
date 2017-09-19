@@ -1,59 +1,44 @@
 package challenge7
 
-import "crypto/cipher"
+import "crypto/aes"
 
-type ecb struct {
-	b         cipher.Block
-	blockSize int
+func ECBDecrypter(ciphertext, key []byte) []byte {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	if len(ciphertext) < aes.BlockSize {
+		panic("Ciphertext too short")
+	}
+
+	// ECB mode always works in whole blocks
+	if len(ciphertext)%aes.BlockSize != 0 {
+		panic("Ciphertext is not a multiple of the block size")
+	}
+
+	mode := NewECBDecrypter(block)
+
+	plaintext := make([]byte, len(ciphertext))
+	mode.CryptBlocks(plaintext, ciphertext)
+
+	return plaintext
 }
 
-func newECB(b cipher.Block) *ecb {
-	return &ecb{
-		b:         b,
-		blockSize: b.BlockSize(),
+func ECBEncrypter(plaintext, key []byte) []byte {
+	// Here we'll assume that the plaintext is already of the correct length.
+	if len(plaintext)%aes.BlockSize != 0 {
+		panic("Plaintext is not a multiple of the block size")
 	}
-}
 
-type ecbEncrypter ecb
-
-func NewECBEncrypter(b cipher.Block) cipher.BlockMode {
-	return (*ecbEncrypter)(newECB(b))
-}
-
-func (x *ecbEncrypter) BlockSize() int { return x.blockSize }
-
-func (x *ecbEncrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
 	}
-	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
-	}
-	for len(src) > 0 {
-		x.b.Encrypt(dst, src[:x.blockSize])
-		src = src[x.blockSize:]
-		dst = dst[x.blockSize:]
-	}
-}
 
-type ecbDecrypter ecb
+	ciphertext := make([]byte, len(plaintext))
+	mode := NewECBEncrypter(block)
+	mode.CryptBlocks(ciphertext, plaintext)
 
-func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
-	return (*ecbDecrypter)(newECB(b))
-}
-
-func (x *ecbDecrypter) BlockSize() int { return x.blockSize }
-
-func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%x.blockSize != 0 {
-		panic("crypto/cipher: input not full blocks")
-	}
-	if len(dst) < len(src) {
-		panic("crypto/cipher: output smaller than input")
-	}
-	for len(src) > 0 {
-		x.b.Decrypt(dst, src[:x.blockSize])
-		src = src[x.blockSize:]
-		dst = dst[x.blockSize:]
-	}
+	return ciphertext
 }
