@@ -1,11 +1,11 @@
 package challenge8
 
 import (
-	"testing"
-	"io/ioutil"
-	"fmt"
 	"bytes"
 	"encoding/hex"
+	"fmt"
+	"io/ioutil"
+	"testing"
 )
 
 func TestDetectECB(t *testing.T) {
@@ -22,7 +22,7 @@ func TestDetectECB(t *testing.T) {
 	// and convert each line to hex
 	hexSlices := make([][]byte, len(byteLines))
 	for i, byteLine := range byteLines {
-		hexSlices[i] = make([]byte, len(byteLine) / 2)
+		hexSlices[i] = make([]byte, len(byteLine)/2)
 		hex.Decode(hexSlices[i], byteLine)
 	}
 

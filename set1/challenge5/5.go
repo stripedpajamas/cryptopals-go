@@ -18,7 +18,7 @@ func RepeatingKeyXOR(plaintext, key []byte) []byte {
 	output := make([]byte, len(plaintext))
 
 	for i, ptByte := range plaintext {
-		output[i] = ptByte ^ key[i % keyLen]
+		output[i] = ptByte ^ key[i%keyLen]
 	}
 
 	return output

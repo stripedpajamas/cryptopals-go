@@ -1,8 +1,8 @@
 package challenge9
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 func TestPad(t *testing.T) {

@@ -3,9 +3,9 @@ package challenge6
 import (
 	"github.com/stripedpajamas/cryptopals/set1/challenge3"
 	"github.com/stripedpajamas/cryptopals/set1/challenge5"
+	"math"
 	"math/bits"
 	"sort"
-	"math"
 )
 
 type Cracked struct {
@@ -59,9 +59,9 @@ func CrackRepeatingKeyXor(cipherBytes []byte) Cracked {
 	// take two chunks of guess length and find the normalized hamming distance
 	for i := 2; i <= 40; i++ {
 		firstChunk := cipherBytes[0:i]
-		secondChunk := cipherBytes[i:i*2]
-		thirdChunk := cipherBytes[i*2:i*3]
-		fourthChunk := cipherBytes[i*3:i*4]
+		secondChunk := cipherBytes[i : i*2]
+		thirdChunk := cipherBytes[i*2 : i*3]
+		fourthChunk := cipherBytes[i*3 : i*4]
 		hDistance1 := float64(HammingDistance(firstChunk, secondChunk)) / float64(i)
 		hDistance2 := float64(HammingDistance(secondChunk, thirdChunk)) / float64(i)
 		hDistance3 := float64(HammingDistance(thirdChunk, fourthChunk)) / float64(i)

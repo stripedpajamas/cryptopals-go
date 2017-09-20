@@ -11,7 +11,7 @@ func DetectECB(ciphertexts [][]byte) [][]byte {
 	for idx, ciphertext := range ciphertexts {
 		// find any ciphertexts that have repeated blocks
 		for j := 0; j < len(ciphertext); j += 16 {
-			block := ciphertext[j:j+16]
+			block := ciphertext[j : j+16]
 			if bytes.Count(ciphertext, block) > 1 {
 				ecbFoundIdxs[idx] = true
 			}

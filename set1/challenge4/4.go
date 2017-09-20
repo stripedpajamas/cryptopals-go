@@ -1,8 +1,8 @@
 package challenge4
 
 import (
-	"github.com/stripedpajamas/cryptopals/set1/challenge3"
 	"encoding/hex"
+	"github.com/stripedpajamas/cryptopals/set1/challenge3"
 )
 
 type Identified struct {
@@ -37,7 +37,7 @@ func DetectSingleKeyXor(hexStrings []string) *Identified {
 
 	// wait for all the cracking goroutines to finish
 	for i := 0; i < inputLength; i++ {
-		<- doneCracking
+		<-doneCracking
 	}
 
 	// iterate through each of the processed strings and find the lowest score

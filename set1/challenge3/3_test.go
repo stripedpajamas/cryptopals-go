@@ -1,9 +1,9 @@
 package challenge3
 
 import (
-	"testing"
 	"bytes"
 	"encoding/hex"
+	"testing"
 )
 
 func TestScoreString(t *testing.T) {

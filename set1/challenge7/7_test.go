@@ -1,11 +1,11 @@
 package challenge7
 
 import (
-	"testing"
-	"encoding/base64"
-	"io/ioutil"
-	"fmt"
 	"bytes"
+	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"testing"
 )
 
 func TestECBDecrypter(t *testing.T) {

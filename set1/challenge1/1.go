@@ -1,8 +1,8 @@
 package challenge1
 
 import (
-	"encoding/hex"
 	"encoding/base64"
+	"encoding/hex"
 )
 
 func Hex2b64(hexString string) string {

@@ -1,10 +1,10 @@
 package challenge6
 
 import (
-	"testing"
-	"io/ioutil"
-	"fmt"
 	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"testing"
 )
 
 func TestHammingDistance(t *testing.T) {

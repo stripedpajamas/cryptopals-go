@@ -1,9 +1,9 @@
 package challenge3
 
 import (
-	"strings"
 	"bytes"
 	"math"
+	"strings"
 )
 
 type Processed struct {
@@ -78,7 +78,9 @@ func CrackSingleKeyXOR(inputBytes []byte) *Processed {
 	}
 
 	// wait for all the cracker goroutines to finish
-	for i := 0; i < 255; i++ { <- doneCracking }
+	for i := 0; i < 255; i++ {
+		<-doneCracking
+	}
 
 	// get the lowest score (the most like English)
 	var topScoredKey byte

@@ -1,8 +1,8 @@
 package challenge2
 
 import (
-	"errors"
 	"encoding/hex"
+	"errors"
 )
 
 func Xor(a, b string) (string, error) {

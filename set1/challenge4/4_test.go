@@ -1,10 +1,10 @@
 package challenge4
 
 import (
-	"testing"
-	"io/ioutil"
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"testing"
 )
 
 func TestDetectSingleKeyXor(t *testing.T) {
