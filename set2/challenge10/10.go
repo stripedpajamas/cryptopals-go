@@ -40,7 +40,7 @@ func CBCDecrypter(iv, ciphertext, key []byte) []byte {
 func CBCEncrypter(iv, plaintext, key []byte) []byte {
 	pLen := len(plaintext)
 	if pLen%16 != 0 {
-		panic("Invalid ciphertext length")
+		panic("Invalid plaintext length")
 	}
 	if len(iv)%16 != 0 {
 		panic("Invalid IV length")

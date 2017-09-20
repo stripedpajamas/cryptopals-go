@@ -9,6 +9,7 @@ import (
 )
 
 func TestCBCDecrypter(t *testing.T) {
+	// http://cryptopals.com/sets/2/challenges/10
 	encodedBytes, err := ioutil.ReadFile("10.txt")
 	if err != nil {
 		fmt.Println("Error:", err)

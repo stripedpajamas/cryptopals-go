@@ -16,7 +16,6 @@ func DetectECB(ciphertexts [][]byte) [][]byte {
 				ecbFoundIdxs[idx] = true
 			}
 		}
-
 	}
 	ecbFound := make([][]byte, len(ecbFoundIdxs))
 	// compile list based on index
