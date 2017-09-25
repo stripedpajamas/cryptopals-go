@@ -1,10 +1,10 @@
 package challenge12
 
 import (
-	"github.com/stripedpajamas/cryptopals/set2/challenge11"
-	"github.com/stripedpajamas/cryptopals/set1/challenge7"
-	"github.com/stripedpajamas/cryptopals/set2/challenge9"
 	"bytes"
+	"github.com/stripedpajamas/cryptopals/set1/challenge7"
+	"github.com/stripedpajamas/cryptopals/set2/challenge11"
+	"github.com/stripedpajamas/cryptopals/set2/challenge9"
 )
 
 var key []byte = challenge11.GenerateRandomKey()
@@ -21,7 +21,7 @@ func EncryptWithSecret(plaintext []byte) []byte {
 
 func DetectBlockSize() int {
 	// basically add bytes until output jumps
-	blockSize := 0;
+	blockSize := 0
 	ciphertextLen := len(EncryptWithSecret([]byte("A")))
 	for i := 2; blockSize < 1; i++ {
 		currentLen := len(EncryptWithSecret(bytes.Repeat([]byte("A"), i)))
@@ -38,7 +38,7 @@ func DetectECB(blockSize int) bool {
 	payload := bytes.Repeat([]byte("A"), 2*blockSize)
 	ciphertext := EncryptWithSecret(payload)
 	for j := 0; j < len(ciphertext); j += blockSize {
-		block := ciphertext[j: j+blockSize]
+		block := ciphertext[j : j+blockSize]
 		if bytes.Count(ciphertext, block) > 1 {
 			return true
 		}
@@ -70,7 +70,7 @@ func Crack() []byte {
 				var dicPayload []byte
 				prePayload := append(bytes.Repeat([]byte("A"), payloadSize), plaintext[:ptIdx]...)
 				dicPayload = append(prePayload[:target], j)
-				dicCiphertext := EncryptWithSecret(dicPayload)[currentBlockIdx:currentBlockIdx+blockSize]
+				dicCiphertext := EncryptWithSecret(dicPayload)[currentBlockIdx : currentBlockIdx+blockSize]
 				dic[j] = dicCiphertext
 			}
 
