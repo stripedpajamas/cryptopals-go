@@ -26,7 +26,7 @@ func TestXorBytes(t *testing.T) {
 	c3ExpectedOutput := []byte{116, 104, 101, 32, 107, 105, 100, 32, 100, 111, 110, 39, 116, 32, 112, 108, 97, 121}
 
 	c3output := XorBytes(c3inputA, c3inputB)
-	if bytes.Compare(c3output, c3ExpectedOutput) != 0 {
+	if !bytes.Equal(c3output, c3ExpectedOutput) {
 		t.Fail()
 	}
 }

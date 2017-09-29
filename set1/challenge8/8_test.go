@@ -29,7 +29,7 @@ func TestDetectECB(t *testing.T) {
 	c8output := DetectECB(hexSlices)
 
 	// the ECB encrypted ciphertext is on line 133
-	if bytes.Compare(c8output[0], hexSlices[132]) != 0 {
+	if !bytes.Equal(c8output[0], hexSlices[132]) {
 		t.Fail()
 	}
 }

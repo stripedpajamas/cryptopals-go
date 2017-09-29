@@ -77,7 +77,7 @@ func Crack() []byte {
 			// now that dictionary has been created
 			// iterate through it and look for a block match
 			for decByte, encBytes := range dic {
-				if bytes.Compare(ciphertext[currentBlockIdx:currentBlockIdx+blockSize], encBytes) == 0 {
+				if bytes.Equal(ciphertext[currentBlockIdx:currentBlockIdx+blockSize], encBytes) {
 					plaintext[ptIdx] = decByte
 				}
 			}

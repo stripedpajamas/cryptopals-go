@@ -70,7 +70,7 @@ func TestECBEncrypter(t *testing.T) {
 
 	c7output := ECBEncrypter(plaintext, []byte("YELLOW SUBMARINE"))
 
-	if bytes.Compare(c7output, ciphertextBytes) != 0 {
+	if !bytes.Equal(c7output, ciphertextBytes) {
 		t.Fail()
 	}
 }

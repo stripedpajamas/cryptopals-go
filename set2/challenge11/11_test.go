@@ -9,7 +9,7 @@ func TestGenerateRandomKey(t *testing.T) {
 	key1 := GenerateRandomKey()
 	key2 := GenerateRandomKey()
 
-	if bytes.Compare(key1, key2) == 0 {
+	if bytes.Equal(key1, key2) {
 		t.Fail()
 	}
 }
@@ -18,7 +18,7 @@ func TestRandomlyPad(t *testing.T) {
 	rp1 := RandomlyPad([]byte{1, 2, 3})
 	rp2 := RandomlyPad([]byte{1, 2, 3})
 
-	if bytes.Compare(rp1, rp2) == 0 {
+	if bytes.Equal(rp1, rp2) {
 		t.Fail()
 	}
 }
@@ -38,7 +38,7 @@ func TestRandomlyEncrypt(t *testing.T) {
 	c11output1 := RandomlyEncrypt([]byte(c11input))
 	c11output2 := RandomlyEncrypt([]byte(c11input))
 
-	if bytes.Compare(c11output1.ciphertext, c11output2.ciphertext) == 0 {
+	if bytes.Equal(c11output1.ciphertext, c11output2.ciphertext) {
 		t.Fail()
 	}
 }

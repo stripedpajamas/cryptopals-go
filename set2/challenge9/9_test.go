@@ -12,7 +12,18 @@ func TestPad(t *testing.T) {
 
 	c9output := Pad(c9input, 20)
 
-	if bytes.Compare(c9output, c9ExpectedOutput) != 0 {
+	if !bytes.Equal(c9output, c9ExpectedOutput) {
+		t.Fail()
+	}
+}
+
+func TestUnpad(t *testing.T) {
+	input := append([]byte("YELLOW SUBMARINE"), []byte{4, 4, 4, 4}...)
+	expectedOutput := []byte("YELLOW SUBMARINE")
+
+	output := Unpad(input, 20)
+
+	if !bytes.Equal(output, expectedOutput) {
 		t.Fail()
 	}
 }

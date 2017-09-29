@@ -18,3 +18,13 @@ func Pad(input []byte, blockSize int) []byte {
 
 	return append(input, pad...)
 }
+
+func Unpad(input []byte, blockSize int) []byte {
+	for i := 1; i <= blockSize; i++ {
+		pad := bytes.Repeat([]byte{byte(i)}, i)
+		if bytes.HasSuffix(input, pad) {
+			return input[:len(input)-i]
+		}
+	}
+	return input
+}

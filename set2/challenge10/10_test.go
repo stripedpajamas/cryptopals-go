@@ -40,7 +40,7 @@ func TestCBCDecrypter(t *testing.T) {
 
 	c10output := CBCDecrypter(c10inputIV, ciphertextBytes, c10inputKey)
 
-	if bytes.Compare(c10output, decodedBytes) != 0 {
+	if !bytes.Equal(c10output, decodedBytes) {
 		t.Fail()
 	}
 }
@@ -52,7 +52,7 @@ func TestCBCEncrypter(t *testing.T) {
 
 	c10encrypted := CBCEncrypter(c10inputIV, c10input, c10inputKey)
 
-	if bytes.Compare(c10input, CBCDecrypter(c10inputIV, c10encrypted, c10inputKey)) != 0 {
+	if !bytes.Equal(c10input, CBCDecrypter(c10inputIV, c10encrypted, c10inputKey)) {
 		t.Fail()
 	}
 }
