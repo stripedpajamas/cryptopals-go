@@ -117,6 +117,7 @@ func TestAdminChecker(t *testing.T) {
 }
 
 func TestCreateAdminProfile(t *testing.T) {
+	// https://cryptopals.com/sets/2/challenges/13
 	adminProfile := CreateAdminProfile()
 
 	if AdminChecker(adminProfile) != true {

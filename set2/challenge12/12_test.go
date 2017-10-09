@@ -16,7 +16,9 @@ func TestDetectECB(t *testing.T) {
 	}
 }
 
-func TestCrackBlock(t *testing.T) {
+func TestCrack(t *testing.T) {
+	// https://cryptopals.com/sets/2/challenges/12
+
 	c12ExpectedOutput := `Rollin' in my 5.0
 With my rag-top down so my hair can blow
 The girlies on standby waving just to say hi

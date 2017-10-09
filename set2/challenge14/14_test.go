@@ -1,11 +1,11 @@
 package challenge14
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
-	"testing"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"bytes"
+	"testing"
 )
 
 func TestGenerateGarbage(t *testing.T) {
@@ -47,6 +47,7 @@ func TestDupeIndex(t *testing.T) {
 }
 
 func TestCrack(t *testing.T) {
+	// https://cryptopals.com/sets/2/challenges/14
 	unpaddedOutput := challenge9.Unpad(Crack(), 16)
 
 	// the bytes of the secret are actually available to the module
