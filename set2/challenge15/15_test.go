@@ -9,7 +9,7 @@ func TestValidatePad(t *testing.T) {
 	// https://cryptopals.com/sets/2/challenges/15
 	validInput := append([]byte("ICE ICE BABY"), []byte{4, 4, 4, 4}...)
 
-	output1, err := ValidatePad(validInput, 16)
+	output1, err := RemoveValidPad(validInput, 16)
 
 	if err != nil {
 		t.Fail()
@@ -20,13 +20,13 @@ func TestValidatePad(t *testing.T) {
 	}
 
 	invalidInput1 := append([]byte("ICE ICE BABY"), []byte{5, 5, 5, 5}...)
-	_, err = ValidatePad(invalidInput1, 16)
+	_, err = RemoveValidPad(invalidInput1, 16)
 	if err == nil {
 		t.Fail()
 	}
 
 	invalidInput2 := append([]byte("ICE ICE BABY"), []byte{1, 2, 3, 4}...)
-	_, err = ValidatePad(invalidInput2, 16)
+	_, err = RemoveValidPad(invalidInput2, 16)
 	if err == nil {
 		t.Fail()
 	}

@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-func ValidatePad(input []byte, blockSize int) ([]byte, error) {
+func RemoveValidPad(input []byte, blockSize int) ([]byte, error) {
 	// same idea as Unpad in challenge9 but this one throws up if pad is bad
 	for i := 1; i <= blockSize; i++ {
 		pad := bytes.Repeat([]byte{byte(i)}, i)
