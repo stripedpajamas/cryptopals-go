@@ -55,6 +55,7 @@ func TestIsAdmin(t *testing.T) {
 }
 
 func TestMakeAdmin(t *testing.T) {
+	// https://cryptopals.com/sets/2/challenges/16
 	adminProfile := MakeAdmin()
 
 	if !IsAdmin(adminProfile) {
