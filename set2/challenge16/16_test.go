@@ -53,3 +53,11 @@ func TestIsAdmin(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestMakeAdmin(t *testing.T) {
+	adminProfile := MakeAdmin()
+
+	if !IsAdmin(adminProfile) {
+		t.Fail()
+	}
+}
