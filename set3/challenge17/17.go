@@ -54,6 +54,40 @@ func DecryptAndCheck(ciphertext []byte) bool {
 	return true
 }
 
-//func PaddingOracleAttack() []byte {
-//	ciphertext := BlindEncrypt()
-//}
+func PaddingOracleAttack() []byte {
+	ciphertext := append(iv, BlindEncrypt()...)
+	// plaintext := make([]byte, len(ciphertext))
+	var plaintext []byte
+
+	ctLen := byte(len(ciphertext))
+	var blockIdx byte
+	for blockIdx = 16; blockIdx < ctLen; blockIdx += 16 {
+		ptBlock := make([]byte, 16)
+		crackBlock := ciphertext[blockIdx:blockIdx+16]
+		previousCTBlock := ciphertext[blockIdx-16:blockIdx]
+		workingBlock := append(make([]byte, 16), crackBlock...)
+
+		var crackIdx byte
+		for crackIdx = 1; crackIdx <= 16; crackIdx++ {
+			// initialize our working block with what we already know of the PT
+			var i byte
+			for i = 1; i < crackIdx; i++ {
+				workingBlock[16-i] = previousCTBlock[16-i] ^ ptBlock[16-i] ^ crackIdx
+			}
+			var guess byte
+			for guess = 0; guess < 255; guess++ {
+				workingBlock[16-crackIdx] = previousCTBlock[16-crackIdx] ^ guess ^ crackIdx
+				if DecryptAndCheck(workingBlock) {
+					// valid padding
+					ptBlock[16-crackIdx] = guess
+				}
+			}
+		}
+		plaintext = append(plaintext, ptBlock...)
+	}
+	unpadded, err := challenge15.RemoveValidPad(plaintext, 16)
+	if err != nil {
+		panic(err)
+	}
+	return unpadded
+}

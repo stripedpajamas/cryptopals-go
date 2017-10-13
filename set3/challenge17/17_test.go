@@ -62,3 +62,23 @@ func TestDecryptAndCheck(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestPaddingOracleAttack(t *testing.T) {
+	// test a bunch of times
+	for tests := 0; tests < 10; tests++ {
+		plaintext := PaddingOracleAttack()
+		success := false
+
+		// loop over the decodeds to see if we're in there
+		for _, pt := range decodedPlaintexts {
+			if bytes.Equal(pt, plaintext) {
+				success = true
+				break
+			}
+		}
+
+		if !success {
+			t.Fail()
+		}
+	}
+}
