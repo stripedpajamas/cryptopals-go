@@ -1,11 +1,11 @@
 package challenge17
 
 import (
-	"testing"
-	"encoding/base64"
 	"bytes"
+	"encoding/base64"
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
+	"testing"
 )
 
 var decodedPlaintexts = make([][]byte, len(plaintexts))
@@ -64,6 +64,7 @@ func TestDecryptAndCheck(t *testing.T) {
 }
 
 func TestPaddingOracleAttack(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/17
 	// test a bunch of times
 	for tests := 0; tests < 10; tests++ {
 		plaintext := PaddingOracleAttack()

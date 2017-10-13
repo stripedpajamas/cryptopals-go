@@ -1,13 +1,13 @@
 package challenge17
 
 import (
-	"github.com/stripedpajamas/cryptopals/set2/challenge11"
-	"math/big"
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
+	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set2/challenge15"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
+	"math/big"
 )
 
 var key = challenge11.GenerateRandomKey()
@@ -63,8 +63,8 @@ func PaddingOracleAttack() []byte {
 	var blockIdx byte
 	for blockIdx = 16; blockIdx < ctLen; blockIdx += 16 {
 		ptBlock := make([]byte, 16)
-		crackBlock := ciphertext[blockIdx:blockIdx+16]
-		previousCTBlock := ciphertext[blockIdx-16:blockIdx]
+		crackBlock := ciphertext[blockIdx : blockIdx+16]
+		previousCTBlock := ciphertext[blockIdx-16 : blockIdx]
 		workingBlock := append(make([]byte, 16), crackBlock...)
 
 		var crackIdx byte
