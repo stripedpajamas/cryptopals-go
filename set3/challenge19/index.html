@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Challenge 19</title>
+  <script src="https://unpkg.com/vue"></script>
+</head>
+<body>
+<div id="app">
+  <div>
+    Ciphertexts below. Click a byte to enter a plaintext guess. Spaces represented by <code>[
+    ]</code>. <strong v-if="!checking && !status" @click="checkPt">Click here when you're done.</strong>
+    <span v-if="!checking && status">Success!</span>
+  </div>
+  <div v-if="error" @click="error = ''">
+    Error: {{ error }}. Click to acknowledge.
+  </div>
+  <div v-if="ct.length">
+    <table>
+      <tbody>
+      <tr class="ciphertexts" v-for="ciphertext, ctIdx in ct">
+        <td v-for="byte, byteIdx in ciphertext" @click="edit(ctIdx, byteIdx)">
+          <input
+            v-if="editing(ctIdx, byteIdx)"
+            @keyup.enter="(e) => setPt(ctIdx, byteIdx, e.target.value)"
+            v-focus
+            class="edit"
+            maxlength="1"
+            size="1"
+            @keyup.esc="editingByte = [null, null]"/>
+          <span v-else-if="keystream[byteIdx].length">
+              <code v-if="computed(byte, byteIdx) < 127 && computed(byte, byteIdx) > 32">
+                {{ String.fromCharCode(computed(byte, byteIdx)) }}
+              </code>
+              <code v-else-if="computed(byte, byteIdx) === 32">
+                [ ]
+              </code>
+              <code class="bad-byte" v-else>
+                [{{ computed(byte, byteIdx) }}]
+              </code>
+            </span>
+          <code class="ct" v-else>{{ byte }} </code>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+  function base64ToNums(str) {
+    let nums = [];
+    for (let i = 0, bin = atob(str.replace(/[ \r\n]+$/, '')); i < bin.length; ++i) {
+      nums[nums.length] = bin.charCodeAt(i);
+    }
+    // returns an array
+    return nums;
+  }
+
+  const vm = new Vue({
+    el: '#app',
+    directives: {
+      focus: {
+        inserted: function (el) {
+          el.focus();
+        },
+      },
+    },
+    data: {
+      ct: [],
+      keystream: null,
+      pt: [],
+      error: '',
+      editingByte: [null, null],
+      checking: false,
+      status: false
+    },
+    beforeMount() {
+      fetch('/ct').then(res => res.json()).then((json) => {
+        if (typeof json !== 'object' || !Array.isArray(json.CT)) {
+          this.error = 'Did not get a good response from the API';
+        } else {
+          this.ct = json.CT.map(ct => base64ToNums(ct));
+          const longest = Math.max(...this.ct.map(x => x.length));
+          this.pt = (new Array(this.ct.length)).fill('x').map(x => []);
+          this.keystream = (new Array(longest)).fill('x').map(x => []);
+        }
+      }).catch((e) => {
+        this.error = e.message;
+      });
+    },
+    methods: {
+      editing(ctIdx, byteIdx) {
+        return this.editingByte[0] === ctIdx && this.editingByte[1] === byteIdx;
+      },
+      edit(ctIdx, byteIdx) {
+        this.editingByte = [ctIdx, byteIdx];
+      },
+      setPt(ctIdx, byteIdx, value) {
+        if (value.length) {
+          const byte = value.charCodeAt(0);
+          this.keystream[byteIdx][0] = byte ^ this.ct[ctIdx][byteIdx];
+          this.updatePt(byteIdx, this.keystream[byteIdx][0]);
+        } else {
+          this.keystream[byteIdx] = [];
+          this.updatePt(byteIdx);
+        }
+        this.editingByte = [null, null];
+      },
+      computed(byte, byteIdx) {
+        return byte ^ this.keystream[byteIdx][0];
+      },
+      updatePt(byteIdx, keyByte) {
+        for (let i = 0; i < this.pt.length; i++) {
+          if (byteIdx < this.ct[i].length) {
+            if (typeof keyByte !== 'undefined') {
+              this.pt[i][byteIdx] = String.fromCharCode(this.ct[i][byteIdx] ^ keyByte);
+            } else {
+              this.pt[i][byteIdx] = '';
+            }
+          }
+        }
+      },
+      checkPt() {
+        this.checking = true;
+        const pt = { PT: this.pt.map(x => x.join('')) };
+        fetch('/check', {
+          method: 'POST',
+          body: JSON.stringify(pt)
+        }).then(res => res.json())
+          .then((json) => {
+          this.checking = false;
+          this.status = typeof json === 'object' && json.success;
+        }).catch((e) => {
+          this.checking = false;
+          this.error = e.message;
+        });
+      }
+    },
+  });
+</script>
+<style type="text/css">
+  body {
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+  }
+
+  .ct {
+    color: lightgray;
+  }
+
+  .edit {
+    font-family: monospace;
+  }
+
+  .bad-byte {
+    color: tomato;
+  }
+
+  td {
+    padding: 4px;
+  }
+</style>
+</body>
+</html>
