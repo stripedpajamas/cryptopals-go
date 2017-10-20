@@ -1,6 +1,7 @@
 package challenge19
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -8,7 +9,6 @@ import (
 	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 	"io"
 	"net/http"
-	"bytes"
 )
 
 var ptBase64Array []string = []string{
