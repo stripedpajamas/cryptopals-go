@@ -1,8 +1,8 @@
 package challenge20
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 var plaintexts []string = []string{
@@ -73,6 +73,7 @@ func TestCrack(t *testing.T) {
 
 	for i, pt := range plaintexts {
 		if strings.ToLower(pt) != strings.ToLower(string(cracked[i])) {
+			// sometimes this test fails for weird reasons
 			t.Fail()
 		}
 	}
