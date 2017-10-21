@@ -69,6 +69,7 @@ var plaintexts []string = []string{
 }
 
 func TestCrack(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/20
 	cracked := Crack()
 
 	for i, pt := range plaintexts {

@@ -5,6 +5,7 @@ import (
 )
 
 func TestExtract(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/21
 	Seed(123)
 	output0 := Extract()
 
