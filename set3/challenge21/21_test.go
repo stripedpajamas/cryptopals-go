@@ -6,21 +6,21 @@ import (
 
 func TestExtract(t *testing.T) {
 	Seed(123)
-	outputs := make([]int, 10)
-	for i := 0; i < 10; i++ {
-		outputs[i] = Extract()
+	output0 := Extract()
+
+	Seed(123)
+	output1 := Extract()
+
+	Seed(321)
+	output2 := Extract()
+
+	// same seeds should result in same first result
+	if output0 != output1 {
+		t.Fail()
 	}
 
-	for i, num := range outputs {
-		for j, otherNum := range outputs {
-			if j == i {
-				continue
-			}
-			if num == otherNum {
-				// assuming that there shouldn't be a repeated number
-				// in 10 samples
-				t.Fail()
-			}
-		}
+	// different seeds should result in different first result
+	if output2 == output1 {
+		t.Fail()
 	}
 }
