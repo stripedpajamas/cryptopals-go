@@ -7,7 +7,7 @@ import (
 func TestMt19937_Extract(t *testing.T) {
 	MT0 := NewMT19937()
 	MT0.Seed(123)
-	output0 := MT0.Extract()
+	MT0.Extract() // get rid of the first result for the loop later
 
 	MT1 := NewMT19937()
 	MT1.Seed(123)
@@ -17,9 +17,11 @@ func TestMt19937_Extract(t *testing.T) {
 	MT2.Seed(321)
 	output2 := MT2.Extract()
 
-	// same seeds should result in same first result
-	if output0 != output1 {
-		t.Fail()
+	// same seeds should result in same results
+	for i := 0; i < 32; i++ {
+		if MT0.Extract() != MT1.Extract() {
+			t.Fail()
+		}
 	}
 
 	// different seeds should result in different first result
