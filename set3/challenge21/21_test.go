@@ -4,16 +4,18 @@ import (
 	"testing"
 )
 
-func TestExtract(t *testing.T) {
-	// https://cryptopals.com/sets/3/challenges/21
-	Seed(123)
-	output0 := Extract()
+func TestMt19937_Extract(t *testing.T) {
+	MT0 := NewMT19937()
+	MT0.Seed(123)
+	output0 := MT0.Extract()
 
-	Seed(123)
-	output1 := Extract()
+	MT1 := NewMT19937()
+	MT1.Seed(123)
+	output1 := MT1.Extract()
 
-	Seed(321)
-	output2 := Extract()
+	MT2 := NewMT19937()
+	MT2.Seed(321)
+	output2 := MT2.Extract()
 
 	// same seeds should result in same first result
 	if output0 != output1 {

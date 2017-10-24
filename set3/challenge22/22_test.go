@@ -10,9 +10,10 @@ func TestFindSeed(t *testing.T) {
 	random := WaitThenRandom()
 	foundSeed := FindSeed(random)
 
-	challenge21.Seed(foundSeed)
+	MT := challenge21.NewMT19937()
+	MT.Seed(foundSeed)
 
-	if challenge21.Extract() != random {
+	if MT.Extract() != random {
 		t.Fail()
 	}
 }

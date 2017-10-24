@@ -1,65 +1,78 @@
 package challenge21
 
 // Mersenne Twister 19937
-
 // thanks wikipedia <3
 
-// constants:
-var n, m int = 624, 397
-var w, r uint = 32, 31
-var a int = 0x9908B0DF
-var u, s, t uint = 11, 7, 15
-var d = 0xFFFFFFFF
-var b = 0x9D2C5680
-var c = 0xEFC60000
-var l = 18
-var f = 1812433253
-
-// Create a length n array to store the state of the generator
-var MT []int = make([]int, n)
-var index int = n + 1
-var lowerMask int = (1 << r) - 1
-var upperMask int = leastSignificantBits(^lowerMask)
-
-func leastSignificantBits(x int) int {
-	return 0xFFFFFFFF & x
+type MT19937 struct {
+	State                                         []int
+	Index, lowerMask, upperMask, N, m, a, b, c, f int
+	u, s, t, l, w, r                              uint
 }
 
-func Seed(seed int) {
-	index = n
-	MT[0] = seed
-	for i := 1; i < n; i++ {
-		MT[i] = leastSignificantBits(f*(MT[i-1]^(MT[i-1]>>(w-2))) + 1)
+type PRNG interface {
+	Seed(int)
+	Twist()
+	Extract() int
+}
+
+func NewMT19937() MT19937 {
+	mt := MT19937{
+		State: make([]int, 624),
+		Index: 625,
+		N:     624,
+		m:     397,
+		w:     32,
+		r:     31,
+		a:     0x9908B0DF,
+		u:     11,
+		s:     7,
+		t:     15,
+		l:     18,
+		b:     0x9D2C5680,
+		c:     0xEFC60000,
+		f:     1812433253,
+	}
+	mt.lowerMask = (1 << mt.r) - 1
+	mt.upperMask = 0xFFFFFFFF & (^mt.lowerMask)
+
+	return mt
+}
+
+func (mt *MT19937) Seed(seed int) {
+	mt.Index = mt.N
+	mt.State[0] = seed
+	for i := 1; i < mt.N; i++ {
+		mt.State[i] = 0xFFFFFFFF & (mt.f*(mt.State[i-1]^(mt.State[i-1]>>(mt.w-2))) + 1)
 	}
 }
 
-func twist() {
-	for i := 0; i < n; i++ {
-		x := (MT[i] & upperMask) + (MT[(i+1)%n] & lowerMask)
+func (mt *MT19937) Twist() {
+	for i := 0; i < mt.N; i++ {
+		x := (mt.State[i] & mt.upperMask) + (mt.State[(i+1)%mt.N] & mt.lowerMask)
 		xA := x >> 1
 		if (x % 2) != 0 {
-			xA = xA & a
+			xA = xA & mt.a
 		}
-		MT[i] = MT[(i+m)%n] ^ xA
+		mt.State[i] = mt.State[(i+mt.m)%mt.N] ^ xA
 	}
-	index = 0
+	mt.Index = 0
 }
 
-func Extract() int {
-	if index >= n {
-		if index > n {
+func (mt *MT19937) Extract() int {
+	if mt.Index >= mt.N {
+		if mt.Index > mt.N {
 			panic("Generator was not seeded")
 		}
-		twist()
+		mt.Twist()
 	}
 
-	y := MT[index]
-	y = y ^ ((y >> u) & d)
-	y = y ^ ((y << s) & b)
-	y = y ^ ((y << t) & c)
-	y = y ^ (y >> 1)
+	y := mt.State[mt.Index]
+	y = y ^ (y >> mt.u)
+	y = y ^ ((y << mt.s) & mt.b)
+	y = y ^ ((y << mt.t) & mt.c)
+	y = y ^ (y >> mt.l)
 
-	index++
+	mt.Index++
 
-	return leastSignificantBits(y)
+	return 0xFFFFFFFF & y
 }
