@@ -95,3 +95,5 @@ func RecoverKeySeed() int {
 
 	return recoveredSeed
 }
+
+// TODO random "password reset token" part of this challenge

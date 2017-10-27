@@ -5,6 +5,7 @@ import (
 )
 
 func TestMt19937_Extract(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/21
 	MT0 := NewMT19937()
 	MT0.Seed(123)
 	MT0.Extract() // get rid of the first result for the loop later

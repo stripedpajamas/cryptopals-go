@@ -25,6 +25,7 @@ func TestUntemper(t *testing.T) {
 }
 
 func TestCloneMT(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/23
 	// pass in a seeded Mersenne Twister
 	MT0 := challenge21.NewMT19937()
 	MT0.Seed(6993)

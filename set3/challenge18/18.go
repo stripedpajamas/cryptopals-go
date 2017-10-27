@@ -49,7 +49,8 @@ func CTR(input, key, nonce []byte) []byte {
 		if keystream.Len() == 0 {
 			// we increment counter during refill because the keystream is always 16 bytes
 			// which means when we run out it's because we're at the next "block"
-			keystream.Write(challenge7.ECBEncrypter(append(nonce, IncrementCounter(counter, "little")...), key))
+			counter = IncrementCounter(counter, "little")
+			keystream.Write(challenge7.ECBEncrypter(append(nonce, counter...), key))
 		}
 		ks, err := keystream.ReadByte()
 		if err != nil {

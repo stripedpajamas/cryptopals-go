@@ -48,6 +48,7 @@ func TestPRNGEncryptWithGarbage(t *testing.T) {
 }
 
 func TestRecoverKeySeed(t *testing.T) {
+	// https://cryptopals.com/sets/3/challenges/24
 	recovered := RecoverKeySeed()
 	if recovered != keyseed {
 		t.Fail()
