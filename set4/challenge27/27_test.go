@@ -50,6 +50,7 @@ func TestCheckPT(t *testing.T) {
 }
 
 func TestGetKey(t *testing.T) {
+	// https://cryptopals.com/sets/4/challenges/27
 	if !bytes.Equal(GetKey(), key) {
 		t.Fail()
 	}
