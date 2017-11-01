@@ -1,8 +1,8 @@
 package challenge28
 
 import (
-	"testing"
 	"bytes"
+	"testing"
 )
 
 func TestSHA1MAC(t *testing.T) {
