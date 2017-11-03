@@ -48,6 +48,7 @@ func TestGenerateQueryString(t *testing.T) {
 }
 
 func TestGenerateValidAdminMAC(t *testing.T) {
+	// https://cryptopals.com/sets/4/challenges/29
 	originalMsg, originalHash := GenerateQueryString()
 	extMsg, extHash := GenerateValidAdminMAC(originalMsg, originalHash)
 
