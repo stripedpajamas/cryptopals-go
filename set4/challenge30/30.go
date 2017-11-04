@@ -1,10 +1,9 @@
-package challenge29
+package challenge30
 
 import (
 	"bytes"
 	"crypto/rand"
 	"encoding/binary"
-	"github.com/stripedpajamas/cryptopals/set4/challenge28"
 	"io/ioutil"
 	"math/big"
 	"net/url"
@@ -32,18 +31,28 @@ func init() {
 	secret = byteLines[dictIdx]
 }
 
-func GenerateQueryString() (msg []byte, hash [20]byte) {
+func MD4MAC(key, message []byte) []byte {
+	input := append(key, message...)
+	// default registers for MD4
+	var h0 uint32 = 0x67452301
+	var h1 uint32 = 0xEFCDAB89
+	var h2 uint32 = 0x98BADCFE
+	var h3 uint32 = 0x10325476
+	return Sum(input, h0, h1, h2, h3, len(input))
+}
+
+func GenerateQueryString() (msg []byte, hash []byte) {
 	msg = []byte("comment1=cooking%20MCs;userdata=foo;comment2=%20like%20a%20pound%20of%20bacon")
-	return msg, challenge28.SHA1MAC(secret, msg)
+	return msg, MD4MAC(secret, msg)
 }
 
-func CheckValidity(msg []byte, hash [20]byte) bool {
-	// checks to makes sure hash = sha1(secret || msg)
-	validHash := challenge28.SHA1MAC(secret, msg)
-	return bytes.Equal(validHash[0:20], hash[0:20])
+func CheckValidity(msg, hash []byte) bool {
+	// checks to makes sure hash = md4(secret || msg)
+	validHash := MD4MAC(secret, msg)
+	return bytes.Equal(validHash, hash)
 }
 
-func CheckIsValidAdmin(msg []byte, hash [20]byte) bool {
+func CheckIsValidAdmin(msg []byte, hash []byte) bool {
 	// if the hash is valid for the input
 	if CheckValidity(msg, hash) {
 		// then parse and check for admin=true
@@ -59,7 +68,7 @@ func CheckIsValidAdmin(msg []byte, hash [20]byte) bool {
 	return false
 }
 
-func MDPad(input []byte, guessedLength int) []byte {
+func MDPadLE(input []byte, guessedLength int) []byte {
 	// this appears to be the padding scheme
 	// it is very opaque though
 	var output []byte
@@ -80,29 +89,28 @@ func MDPad(input []byte, guessedLength int) []byte {
 
 	// add the length (in bits) of input to the end of the pad for a total of 64 bits
 	for i := uint(0); i < 8; i++ {
-		tmp[i] = byte(inputLen >> (56 - 8*i))
+		tmp[i] = byte(inputLen >> (8 * i))
 	}
 	return append(output, tmp[0:8]...)
 }
 
-func GenerateValidAdminMAC(originalInput []byte, originalSha [20]byte) ([]byte, [20]byte) {
-	// first break up the provided hash into 5x4-byte slices
-	h0 := binary.BigEndian.Uint32(originalSha[0:4])
-	h1 := binary.BigEndian.Uint32(originalSha[4:8])
-	h2 := binary.BigEndian.Uint32(originalSha[8:12])
-	h3 := binary.BigEndian.Uint32(originalSha[12:16])
-	h4 := binary.BigEndian.Uint32(originalSha[16:20])
-	// now we can seed the sha1 algorithm with the state of an existing hash
+func GenerateValidAdminMAC(originalInput []byte, originalMD4 []byte) ([]byte, []byte) {
+	// first break up the provided hash into 4x4-byte slices
+	h0 := binary.LittleEndian.Uint32(originalMD4[0:4])
+	h1 := binary.LittleEndian.Uint32(originalMD4[4:8])
+	h2 := binary.LittleEndian.Uint32(originalMD4[8:12])
+	h3 := binary.LittleEndian.Uint32(originalMD4[12:16])
+	// now we can seed the md4 algorithm with the state of an existing hash
 
 	// first we need to decide what our desired payload is
 	// in this case it will be ;admin=true
 	payload := []byte(";admin=true")
-	var generatedSha [20]byte
+	var generatedMD4 []byte
 	var extendedMsg []byte
 	originalLen := len(originalInput)
 
-	// we will now guess at the secret length from 1 to 40 (6 for testing)
-	for i := 0; i <= 40; i++ {
+	// we will now guess at the secret length from 1 to 40
+	for i := 1; i <= 40; i++ {
 		// first pad is len of original plus guessed secret length
 		guessedLenOfPrependedMsg := originalLen + i
 		gluePad := 64 - (guessedLenOfPrependedMsg % 64)
@@ -111,15 +119,15 @@ func GenerateValidAdminMAC(originalInput []byte, originalSha [20]byte) ([]byte, 
 		guessedLenOfEverything := guessedLenOfPrependedMsg + gluePad + len(payload)
 
 		// generate a payload with a fixed length and fixed registers
-		generatedSha = Sum(payload, h0, h1, h2, h3, h4, guessedLenOfEverything)
+		generatedMD4 = Sum(payload, h0, h1, h2, h3, guessedLenOfEverything)
 
-		// build out what the generatedSha would actually be a sha of
-		extendedMsg = append(MDPad(originalInput, guessedLenOfPrependedMsg), payload...)
+		// build out what the generatedMD4 would actually be an MD4 of
+		extendedMsg = append(MDPadLE(originalInput, guessedLenOfPrependedMsg), payload...)
 
-		if CheckIsValidAdmin(extendedMsg, generatedSha) {
+		if CheckIsValidAdmin(extendedMsg, generatedMD4) {
 			break
 		}
 	}
 
-	return extendedMsg, generatedSha
+	return extendedMsg, generatedMD4
 }
