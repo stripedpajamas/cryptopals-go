@@ -1,90 +1,120 @@
 package challenge31
 
 import (
-	"bytes"
-	"crypto/sha1"
-	"github.com/stripedpajamas/cryptopals/set1/challenge3"
-	"net/http"
-	"net/url"
 	"encoding/hex"
+	"fmt"
+	"net/http"
 	"time"
 )
 
-var key []byte = []byte("potato")
-
-func HmacSha1(key, message []byte) [20]byte {
-	keyLen := len(key)
-	if keyLen > 64 {
-		// keys longer than blocksize are shortened
-		tmp := sha1.Sum(key)
-		key = tmp[0:20]
-	}
-	if keyLen < 64 {
-		// keys shorter than blocksize are zero-padded
-		key = append(key, bytes.Repeat([]byte{0}, 64-keyLen)...)
-	}
-
-	oKeyPad := challenge3.XorBytes(bytes.Repeat([]byte{0x5c}, 64), key)
-	iKeyPad := challenge3.XorBytes(bytes.Repeat([]byte{0x36}, 64), key)
-
-	tmp := sha1.Sum(append(iKeyPad, message...))
-	return sha1.Sum(append(oKeyPad, tmp[0:20]...))
+type TimedByte struct {
+	t time.Duration
+	b byte
+}
+type Job struct {
+	filename  string
+	index     int
+	guessByte byte
+	guess     []byte
 }
 
-func InsecureCompare(a, b []byte) bool {
-	if len(a) != len(b) {
-		return false
+var netClient = &http.Client{}
+
+// Maximum value of a slice of TimedBytes
+func Max(slice []TimedByte) (m TimedByte) {
+	if len(slice) > 0 {
+		m = slice[0]
 	}
-	for i := 0; i < len(a); i++ {
-		if a[i] != b[i] {
-			return false
+	for i := 1; i < len(slice); i++ {
+		if slice[i].t > m.t {
+			m = slice[i]
 		}
-		// artificial time delay
-		time.Sleep(time.Millisecond * 50)
 	}
-	return true
+	return
 }
 
-func handleFunc(w http.ResponseWriter, r *http.Request) {
-	qs, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		panic(err)
-	}
+func measureWorker(jobs <-chan Job, results chan<- TimedByte) {
+	for j := range jobs {
+		myGuess := make([]byte, 20)
+		copy(myGuess, j.guess)
 
-	fileName := qs.Get("file")
-	signatureString := qs.Get("signature")
-	// check for 'file' and 'signature' in query string
-	if fileName == "" || signatureString == "" {
-		w.WriteHeader(500)
-		w.Write([]byte("Missing file or signature"))
-		return
+		// set the jth byte to our current guess (i)
+		myGuess[j.index] = j.guessByte
+		// make the hex sig
+		signature := hex.EncodeToString(myGuess)
+		// format the request string
+		req := fmt.Sprintf("http://127.0.0.1:8000/test?file=%s&signature=%s", j.filename, signature)
+		// start the timer
+		before := time.Now()
+		// make the request
+		res, err := netClient.Get(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode == 200 {
+			// handle the last byte (or getting lucky)
+			results <- TimedByte{
+				t: 9999999999,
+				b: j.guessByte,
+			}
+			return
+		} else if res.StatusCode == 500 {
+			res.Body.Close()
+			// populate our time table
+			results <- TimedByte{
+				t: time.Since(before),
+				b: j.guessByte,
+			}
+		}
 	}
-
-	// decode signature
-	signature, err := hex.DecodeString(signatureString)
-	if err != nil {
-		w.WriteHeader(500)
-		w.Write([]byte("Invalid signature supplied"))
-		return
-	}
-
-	// generate proper signature
-	validSignature := HmacSha1(key, []byte(fileName))
-
-	if !InsecureCompare(signature, validSignature[0:20]) {
-		w.WriteHeader(500)
-		w.Write([]byte("Invalid signature supplied"))
-		return
-	}
-	w.WriteHeader(200)
-	w.Write([]byte("Success!"))
 }
 
-func HmacServer() {
-	http.HandleFunc("/test", handleFunc)
-	http.ListenAndServe(":8000", nil)
-}
+func DiscoverValidMAC(filename string, verbose bool) []byte {
+	tr := &http.Transport{
+		MaxIdleConns:        255,
+		MaxIdleConnsPerHost: 255,
+	}
+	netClient = &http.Client{Transport: tr}
+	// a sha1 hash is 20 bytes long
+	// start with all zeros
+	guess := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	times := make([]TimedByte, 255)
+	//done := false
 
-func DiscoverValidMAC(filename string) {
+	for j := 0; j < 20; j++ {
+		jobs := make(chan Job, 255)
+		results := make(chan TimedByte, 255)
 
+		// make some workers (150)
+		for w := 0; w < 100; w++ {
+			go measureWorker(jobs, results)
+		}
+
+		for i := byte(0); i < 255; i++ {
+			// send jobs to the workers
+			jobs <- Job{
+				filename:  filename,
+				index:     j,
+				guessByte: i,
+				guess:     guess,
+			}
+		}
+		close(jobs)
+
+		// wait for the threads to finish
+		for i := 0; i < 255; i++ {
+			times[i] = <-results
+		}
+
+		// find the request that took the longest and update our guess
+		guess[j] = Max(times).b
+		if verbose {
+			fmt.Printf("%x\n", guess)
+		}
+
+		// reset everything to zeros
+		times = make([]TimedByte, 255)
+	}
+
+	return guess
 }

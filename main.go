@@ -9,7 +9,8 @@ import (
 
 func main() {
 	var crackServer = flag.Bool("crackServer", false, "Run the challenge 19 server")
-	var hmacServer  = flag.Bool("hmacServer", false, "Run the challenge 31 server")
+	var hmacServer = flag.Bool("hmacServer", false, "Run the challenge 31 server")
+	var hmacAttack = flag.String("hmacAttack", "foo", "Run the challenge 31 attacker")
 
 	flag.Parse()
 
@@ -19,5 +20,8 @@ func main() {
 	} else if *hmacServer {
 		fmt.Println("Starting Challenge 31 HMAC server on port 8000")
 		challenge31.HmacServer()
+	} else if *hmacAttack != "" {
+		fmt.Printf("Starting Challenge 31 HMAC attacker for filename %s\n", *hmacAttack)
+		challenge31.DiscoverValidMAC(*hmacAttack, true)
 	}
 }
