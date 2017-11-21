@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
-	"github.com/stripedpajamas/cryptopals/set1/challenge3"
-	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/stripedpajamas/cryptopals/set1/challenge3"
+	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 )
 
 var artificialDelay time.Duration

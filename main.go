@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/stripedpajamas/cryptopals/set3/challenge19"
 	"github.com/stripedpajamas/cryptopals/set4/challenge31"
-    "github.com/stripedpajamas/cryptopals/set4/challenge32"
+	"github.com/stripedpajamas/cryptopals/set4/challenge32"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 	var hmacServer = flag.Bool("hmacServer", false, "Run the challenge 31 server (50ms delay)")
 	var hmacServer2 = flag.Bool("hmacServer2", false, "Run the challenge 31 server (25ms delay)")
 	var hmacAttack = flag.String("hmacAttack", "foo", "Run the challenge 31 attacker")
-    var hmacAttack2 = flag.String("hmacAttack2", "foo", "Run the challenge 32 attacker")
+	var hmacAttack2 = flag.String("hmacAttack2", "foo", "Run the challenge 32 attacker")
 
 	flag.Parse()
 

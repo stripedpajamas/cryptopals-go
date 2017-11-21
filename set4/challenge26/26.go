@@ -1,10 +1,11 @@
 package challenge26
 
 import (
-	"github.com/stripedpajamas/cryptopals/set2/challenge11"
-	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 	"net/url"
 	"regexp"
+
+	"github.com/stripedpajamas/cryptopals/set2/challenge11"
+	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 )
 
 var key = challenge11.GenerateRandomKey()

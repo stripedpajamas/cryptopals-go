@@ -3,10 +3,11 @@ package challenge20
 import (
 	"bytes"
 	"encoding/base64"
+	"io/ioutil"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge3"
 	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set3/challenge18"
-	"io/ioutil"
 )
 
 // get a random key and a fixed nonce of 0

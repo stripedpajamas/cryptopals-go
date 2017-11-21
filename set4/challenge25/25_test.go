@@ -2,9 +2,10 @@ package challenge25
 
 import (
 	"bytes"
-	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 	"io/ioutil"
 	"testing"
+
+	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 )
 
 var globalPlaintext []byte

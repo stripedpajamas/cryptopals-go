@@ -3,10 +3,11 @@ package challenge11
 import (
 	"bytes"
 	"crypto/rand"
+	"math/big"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"math/big"
 )
 
 type RandomlyEncrypted struct {

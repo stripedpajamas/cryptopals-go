@@ -1,11 +1,12 @@
 package challenge6
 
 import (
-	"github.com/stripedpajamas/cryptopals/set1/challenge3"
-	"github.com/stripedpajamas/cryptopals/set1/challenge5"
 	"math"
 	"math/bits"
 	"sort"
+
+	"github.com/stripedpajamas/cryptopals/set1/challenge3"
+	"github.com/stripedpajamas/cryptopals/set1/challenge5"
 )
 
 type Cracked struct {

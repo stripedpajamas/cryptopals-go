@@ -3,9 +3,10 @@ package challenge17
 import (
 	"bytes"
 	"encoding/base64"
+	"testing"
+
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"testing"
 )
 
 var decodedPlaintexts = make([][]byte, len(plaintexts))

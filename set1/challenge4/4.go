@@ -2,6 +2,7 @@ package challenge4
 
 import (
 	"encoding/hex"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge3"
 )
 

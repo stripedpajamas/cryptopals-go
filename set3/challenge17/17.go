@@ -3,11 +3,12 @@ package challenge17
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"math/big"
+
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set2/challenge15"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"math/big"
 )
 
 var key = challenge11.GenerateRandomKey()

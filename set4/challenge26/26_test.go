@@ -1,8 +1,9 @@
 package challenge26
 
 import (
-	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 	"testing"
+
+	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 )
 
 func TestSanitizeInput(t *testing.T) {

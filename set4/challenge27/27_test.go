@@ -2,9 +2,10 @@ package challenge27
 
 import (
 	"bytes"
+	"testing"
+
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge15"
-	"testing"
 )
 
 func TestGenerateEncURL(t *testing.T) {

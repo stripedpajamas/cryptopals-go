@@ -2,8 +2,9 @@ package challenge29
 
 import (
 	"bytes"
-	"github.com/stripedpajamas/cryptopals/set4/challenge28"
 	"testing"
+
+	"github.com/stripedpajamas/cryptopals/set4/challenge28"
 )
 
 func TestMDPad(t *testing.T) {

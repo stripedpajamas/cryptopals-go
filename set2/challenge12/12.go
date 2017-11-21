@@ -2,6 +2,7 @@ package challenge12
 
 import (
 	"bytes"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
 	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"

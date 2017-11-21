@@ -3,13 +3,14 @@ package challenge13
 import (
 	"bytes"
 	"crypto/rand"
+	"net/url"
+	"regexp"
+	"time"
+
 	"github.com/oklog/ulid"
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
 	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"net/url"
-	"regexp"
-	"time"
 )
 
 var key []byte = challenge11.GenerateRandomKey()

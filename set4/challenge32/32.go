@@ -3,9 +3,10 @@ package challenge32
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/stripedpajamas/cryptopals/set4/challenge31"
 	"net/http"
 	"time"
+
+	"github.com/stripedpajamas/cryptopals/set4/challenge31"
 )
 
 var netClient = &http.Client{}
@@ -35,8 +36,8 @@ func measureWorker(jobs <-chan challenge31.Job, results chan<- challenge31.Timed
 		// format the request string
 		req := fmt.Sprintf("http://127.0.0.1:8000/test?file=%s&signature=%s", j.Filename, signature)
 
-        // run many requests and take the average (nope. not good.)
-        // take the smallest time and use that
+		// run many requests and take the average (nope. not good.)
+		// take the smallest time and use that
 		var average time.Duration
 		for run := 0; run < 10; run++ {
 			// start the timer
@@ -52,7 +53,7 @@ func measureWorker(jobs <-chan challenge31.Job, results chan<- challenge31.Timed
 					T: 9999999999,
 					B: j.GuessByte,
 				}
-                res.Body.Close()
+				res.Body.Close()
 				return
 			} else if res.StatusCode == 500 {
 				res.Body.Close()
@@ -60,10 +61,10 @@ func measureWorker(jobs <-chan challenge31.Job, results chan<- challenge31.Timed
 				average += time.Since(before)
 			}
 		}
-        results <- challenge31.TimedByte{
-            T: average / 10,
-            B: j.GuessByte,
-        }
+		results <- challenge31.TimedByte{
+			T: average / 10,
+			B: j.GuessByte,
+		}
 	}
 }
 

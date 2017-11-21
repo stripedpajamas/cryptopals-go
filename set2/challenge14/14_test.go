@@ -3,9 +3,10 @@ package challenge14
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"testing"
 )
 
 func TestGenerateGarbage(t *testing.T) {

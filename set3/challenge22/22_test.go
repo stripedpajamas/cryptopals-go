@@ -1,8 +1,9 @@
 package challenge22
 
 import (
-	"github.com/stripedpajamas/cryptopals/set3/challenge21"
 	"testing"
+
+	"github.com/stripedpajamas/cryptopals/set3/challenge21"
 )
 
 func TestFindSeed(t *testing.T) {

@@ -2,10 +2,11 @@ package challenge32
 
 import (
 	"bytes"
-	"github.com/stripedpajamas/cryptopals/set4/challenge31"
+	"fmt"
 	"testing"
 	"time"
-	"fmt"
+
+	"github.com/stripedpajamas/cryptopals/set4/challenge31"
 )
 
 func init() {

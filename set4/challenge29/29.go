@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/binary"
-	"github.com/stripedpajamas/cryptopals/set4/challenge28"
 	"io/ioutil"
 	"math/big"
 	"net/url"
+
+	"github.com/stripedpajamas/cryptopals/set4/challenge28"
 )
 
 var secret []byte

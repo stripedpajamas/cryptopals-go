@@ -2,10 +2,11 @@ package challenge25
 
 import (
 	"bytes"
+	"math"
+
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
 	"github.com/stripedpajamas/cryptopals/set2/challenge11"
 	"github.com/stripedpajamas/cryptopals/set3/challenge18"
-	"math"
 )
 
 var globalKey []byte = challenge11.GenerateRandomKey()

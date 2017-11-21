@@ -1,10 +1,11 @@
 package challenge16
 
 import (
+	"testing"
+
 	"github.com/stripedpajamas/cryptopals/set2/challenge10"
 	"github.com/stripedpajamas/cryptopals/set2/challenge15"
 	"github.com/stripedpajamas/cryptopals/set2/challenge9"
-	"testing"
 )
 
 func TestSanitizeInput(t *testing.T) {

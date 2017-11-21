@@ -2,9 +2,10 @@ package challenge22
 
 import (
 	"crypto/rand"
-	"github.com/stripedpajamas/cryptopals/set3/challenge21"
 	"math/big"
 	"time"
+
+	"github.com/stripedpajamas/cryptopals/set3/challenge21"
 )
 
 func WaitThenRandom() int {

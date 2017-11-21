@@ -2,9 +2,10 @@ package challenge30
 
 import (
 	"bytes"
-	"golang.org/x/crypto/md4"
 	"io"
 	"testing"
+
+	"golang.org/x/crypto/md4"
 )
 
 func TestSum(t *testing.T) {

@@ -3,9 +3,10 @@ package challenge24
 import (
 	"bytes"
 	"crypto/rand"
+	"math/big"
+
 	"github.com/stripedpajamas/cryptopals/set2/challenge14"
 	"github.com/stripedpajamas/cryptopals/set3/challenge21"
-	"math/big"
 )
 
 var keyseed int = GenerateRandomSeed()

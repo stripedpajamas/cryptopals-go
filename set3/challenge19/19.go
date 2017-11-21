@@ -5,10 +5,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/stripedpajamas/cryptopals/set2/challenge11"
-	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 	"io"
 	"net/http"
+
+	"github.com/stripedpajamas/cryptopals/set2/challenge11"
+	"github.com/stripedpajamas/cryptopals/set3/challenge18"
 )
 
 var ptBase64Array []string = []string{
