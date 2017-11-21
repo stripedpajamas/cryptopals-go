@@ -9,10 +9,10 @@ import (
 
 func init() {
 	// start up the server first
-	go HmacServer()
+	go HmacServer(50)
 
 	// sleep for a second to make sure the server is up
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 }
 
 func TestHmacSha1(t *testing.T) {
@@ -34,7 +34,7 @@ func TestHmacSha1(t *testing.T) {
 }
 
 func TestDiscoverValidMAC(t *testing.T) {
-	want := HmacSha1(secret, []byte("foo"))
+	want := HmacSha1(Secret, []byte("foo"))
 	got := DiscoverValidMAC("foo", false)
 
 	if !bytes.Equal(want[0:20], got) {

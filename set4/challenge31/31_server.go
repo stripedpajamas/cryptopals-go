@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-var secret []byte = challenge11.GenerateRandomKey()
+var artificialDelay time.Duration
+var Secret []byte = challenge11.GenerateRandomKey()
 
 func HmacSha1(key, message []byte) [20]byte {
 	keyLen := len(key)
@@ -41,7 +42,7 @@ func InsecureCompare(a, b []byte) bool {
 			return false
 		}
 		// artificial time delay
-		time.Sleep(time.Millisecond * 50)
+		time.Sleep(time.Millisecond * artificialDelay)
 	}
 	return true
 }
@@ -71,7 +72,7 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate proper signature
-	validSignature := HmacSha1(secret, []byte(fileName))
+	validSignature := HmacSha1(Secret, []byte(fileName))
 
 	if !InsecureCompare(signature, validSignature[0:20]) {
 		w.WriteHeader(500)
@@ -82,7 +83,8 @@ func handleFunc(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Success!"))
 }
 
-func HmacServer() {
+func HmacServer(wait time.Duration) {
+	artificialDelay = wait
 	http.HandleFunc("/test", handleFunc)
 	http.ListenAndServe(":8000", nil)
 }
