@@ -74,7 +74,7 @@ func TestDiffieHellmanBig(t *testing.T) {
 		t.Fail()
 	}
 	bobPrivate := new(big.Int)
-	bobPrivate.SetBytes(alicePrivateBytes)
+	bobPrivate.SetBytes(bobPrivateBytes)
 	// gets his own public
 	bobPublic := bob.GetPublic(bobPrivate)
 

@@ -8,9 +8,9 @@ import (
 	"github.com/stripedpajamas/cryptopals/set3/challenge21"
 )
 
-func WaitThenRandom() int {
-	// get a random number (I did 200 because I'm impatient)
-	randomTime, err := rand.Int(rand.Reader, big.NewInt(200))
+func WaitThenRandom(howlong int64) int {
+	// get a random number
+	randomTime, err := rand.Int(rand.Reader, big.NewInt(howlong))
 	if err != nil {
 		panic(err)
 	}
