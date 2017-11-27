@@ -9,11 +9,11 @@ import (
 
 func TestDiffieHellman(t *testing.T) {
 	// tiny DH test
-	alice := DH{p: big.NewInt(37), g: big.NewInt(5)}
+	alice := DH{P: big.NewInt(37), G: big.NewInt(5)}
 	alicePrivate := big.NewInt(123)
 	alicePublic := alice.GetPublic(alicePrivate)
 
-	if alicePublic.Cmp(big.NewInt(10)) != 0 {
+	if alicePublic.Cmp(big.NewInt(29)) != 0 {
 		t.Fail()
 	}
 
@@ -27,7 +27,7 @@ func TestDiffieHellman(t *testing.T) {
 	// gets his own public
 	bobPublic := bob.GetPublic(bobPrivate)
 
-	if bobPublic.Cmp(big.NewInt(13)) != 0 {
+	if bobPublic.Cmp(big.NewInt(19)) != 0 {
 		t.Fail()
 	}
 
@@ -50,7 +50,7 @@ func TestDiffieHellmanBig(t *testing.T) {
 	p := new(big.Int)
 	p.SetBytes(pBytes)
 	g := big.NewInt(2)
-	alice := DH{p: p, g: g}
+	alice := DH{P: p, G: g}
 
 	// generate a big random number for alice
 	alicePrivateBytes := make([]byte, 1024)

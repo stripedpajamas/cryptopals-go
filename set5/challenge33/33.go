@@ -2,26 +2,29 @@ package challenge33
 
 import (
 	"math/big"
+	//"fmt"
 )
 
 type DH struct {
-	p *big.Int
-	g *big.Int
+	P *big.Int
+	G *big.Int
 }
 
 func (dh *DH) SetVars(p, g *big.Int) {
-	dh.p, dh.g = p, g
+	dh.P, dh.G = p, g
 }
 
 func (dh *DH) GetPublic(a *big.Int) *big.Int {
-	// make sure we are mod p
-	priv := a.Mod(a, dh.p)
-
 	// public is g^a mod p
-	return dh.g.Exp(dh.g, priv, dh.p)
+	pub := new(big.Int)
+	pub.Exp(dh.G, a, dh.P)
+	return pub
 }
 
 func (dh *DH) GetSession(otherPub, myPriv *big.Int) *big.Int {
+	//fmt.Printf("Getting session with: \n%#v\n%#v\n", otherPub.Bytes(), myPriv.Bytes())
 	// session key is B^a (mod p) where B is Bob's public and a is Alice's private
-	return otherPub.Exp(otherPub, myPriv, dh.p)
+	ses := new(big.Int)
+	ses.Exp(otherPub, myPriv, dh.P)
+	return ses
 }
