@@ -15,7 +15,7 @@ type SRPServer struct {
 	k    *big.Int
 	I    []byte // email
 	P    []byte // password
-	salt *big.Int
+	Salt *big.Int
 	v    *big.Int
 	B    *big.Int
 	S    *big.Int
@@ -26,9 +26,7 @@ type SRPClient struct {
 	N    *big.Int
 	g    *big.Int
 	k    *big.Int
-	I    []byte // email
-	P    []byte // password
-	salt *big.Int
+	Salt *big.Int
 	A    *big.Int
 	S    *big.Int
 }
@@ -62,7 +60,7 @@ func (server *SRPServer) Initialize(N, g, k *big.Int, email, password []byte) {
 	v := new(big.Int)
 	v.Exp(server.g, x, server.N)
 
-	server.salt = salt
+	server.Salt = salt
 	server.v = v
 }
 
@@ -102,13 +100,13 @@ func (server *SRPServer) GetSession(A, b *big.Int) *big.Int {
 /**
 Client Methods
 */
-func (client *SRPClient) Initialize(N, g, k *big.Int, email, password []byte) {
-	client.N, client.g, client.k, client.I, client.P = N, g, k, email, password
+func (client *SRPClient) Initialize(N, g, k *big.Int) {
+	client.N, client.g, client.k = N, g, k
 }
 
 func (client *SRPClient) SetSalt(salt *big.Int) {
 	// sets the salt as received from the server
-	client.salt = salt
+	client.Salt = salt
 }
 
 func (client *SRPClient) GetPublic(a *big.Int) *big.Int {
@@ -121,7 +119,7 @@ func (client *SRPClient) GetPublic(a *big.Int) *big.Int {
 	return A
 }
 
-func (client *SRPClient) GetSession(B, a *big.Int) *big.Int {
+func (client *SRPClient) GetSession(B, a *big.Int, password []byte) *big.Int {
 	// Compute string uH = SHA256(A|B), u = integer of uH
 	AB := append(client.A.Bytes(), B.Bytes()...)
 	uH := sha256.Sum256(AB)
@@ -133,7 +131,7 @@ func (client *SRPClient) GetSession(B, a *big.Int) *big.Int {
 	// 3. Generate S = (B - k * g**x)**(a + u * x) % N
 	// 4. Generate K = SHA256(S)
 
-	xH := sha256.Sum256(append(client.salt.Bytes(), client.P...))
+	xH := sha256.Sum256(append(client.Salt.Bytes(), password...))
 	x := new(big.Int)
 	x.SetBytes(xH[:])
 
