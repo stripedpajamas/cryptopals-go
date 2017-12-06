@@ -1,12 +1,12 @@
-package challenge36
+package challenge38
+
+// a simplified SRP
 
 import (
 	"crypto/rand"
 	"crypto/sha256"
 	"math/big"
 )
-
-// implementing SRP
 
 // the server
 type SRPServer struct {
@@ -67,24 +67,18 @@ func (server *SRPServer) Initialize(N, g, k *big.Int, email, password []byte) {
 }
 
 func (server *SRPServer) GetPublic(b *big.Int) *big.Int {
-	// generates B = kv + g^b mod N
+	// generates B = g^b mod N
+	// this is the simplified part
 	B := new(big.Int)
 	B.Exp(server.g, b, server.N) // g^b % N
-	kv := new(big.Int)
-	kv.Mul(server.k, server.v) // kv
-	B.Add(kv, B)               // kv + g^b % N
 
 	server.B = B
 
 	return B
 }
 
-func (server *SRPServer) GetSession(A, b *big.Int) [32]byte {
-	// Compute string uH = SHA256(A|B), u = integer of uH
-	AB := append(A.Bytes(), server.B.Bytes()...)
-	uH := sha256.Sum256(AB)
-	u := new(big.Int)
-	u.SetBytes(uH[:])
+func (server *SRPServer) GetSession(A, b, u *big.Int) [32]byte {
+	// u is generated outside the protocol now, a random big number (128 bits)
 
 	// generates S = (Av^u)^b mod N
 	S := new(big.Int)
@@ -123,16 +117,10 @@ func (client *SRPClient) GetPublic(a *big.Int) *big.Int {
 	return A
 }
 
-func (client *SRPClient) GetSession(B, a *big.Int, password []byte) [32]byte {
-	// Compute string uH = SHA256(A|B), u = integer of uH
-	AB := append(client.A.Bytes(), B.Bytes()...)
-	uH := sha256.Sum256(AB)
-	u := new(big.Int)
-	u.SetBytes(uH[:])
-
+func (client *SRPClient) GetSession(B, a, u *big.Int, password []byte) [32]byte {
 	// 1. Generate string xH=SHA256(salt|password)
 	// 2. Convert xH to integer x
-	// 3. Generate S = (B - k * g**x)**(a + u * x) % N
+	// 3. Generate S = B**(a + ux) % N
 	// 4. Generate K = SHA256(S)
 
 	xH := sha256.Sum256(append(client.Salt.Bytes(), password...))
@@ -140,17 +128,12 @@ func (client *SRPClient) GetSession(B, a *big.Int, password []byte) [32]byte {
 	x.SetBytes(xH[:])
 
 	S := new(big.Int)
-	tmp := new(big.Int)
 	tmp2 := new(big.Int)
-	tmp.Exp(client.g, x, client.N) // g^x
-	tmp.Mul(client.k, tmp)         // k * g^x
-	tmp.Sub(B, tmp)                // B - kg^x
-	tmp2.Mul(u, x)                 // ux
-	tmp2.Add(a, tmp2)              // a + u * x
-	S.Exp(tmp, tmp2, client.N)     // (B - kg^x)^(a + ux) % N
+	tmp2.Mul(u, x)           // ux
+	tmp2.Add(a, tmp2)        // a + u * x
+	S.Exp(B, tmp2, client.N) // B^(a + ux) % N
 
 	client.S = S
-
 	client.K = sha256.Sum256(S.Bytes())
 
 	return client.K

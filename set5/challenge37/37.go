@@ -2,6 +2,7 @@ package challenge37
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"fmt"
 	"math/big"
 )
@@ -101,6 +102,7 @@ func LoginZero() bool {
 	recSalt.SetBytes(serverPayload[0])
 	client.SetSalt(recSalt)
 	client.S = big.NewInt(0)
+	client.K = sha256.Sum256(client.S.Bytes())
 
 	// to confirm authentication, client sends HMAC(key, salt) to server
 	// server also computes HMAC(key, salt) and if they match, return success
@@ -156,6 +158,7 @@ func LoginN() bool {
 	recSalt.SetBytes(serverPayload[0])
 	client.SetSalt(recSalt)
 	client.S = big.NewInt(0)
+	client.K = sha256.Sum256(client.S.Bytes())
 
 	// to confirm authentication, client sends HMAC(key, salt) to server
 	// server also computes HMAC(key, salt) and if they match, return success

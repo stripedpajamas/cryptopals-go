@@ -1,6 +1,7 @@
 package challenge36
 
 import (
+	"bytes"
 	"crypto/rand"
 	"math/big"
 	"testing"
@@ -61,7 +62,7 @@ func TestSRP(t *testing.T) {
 	// now typically they would authenticate each other by hmac'ing the salt using the session key
 	// since this is just a test, we only need to confirm the session keys are the same
 
-	if ss.Cmp(cs) != 0 {
+	if !bytes.Equal(ss[:], cs[:]) {
 		t.Fail()
 	}
 }
