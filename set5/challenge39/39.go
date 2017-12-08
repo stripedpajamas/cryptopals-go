@@ -6,7 +6,7 @@ import (
 )
 
 type RSA struct {
-	n *big.Int
+	N *big.Int
 	e *big.Int
 	d *big.Int
 }
@@ -43,18 +43,18 @@ func (r *RSA) Initialize() {
 		et = new(big.Int).Mul(a, b)
 	}
 
-	r.n = new(big.Int).Mul(p, q)           // N = pq
+	r.N = new(big.Int).Mul(p, q)           // N = pq
 	r.d = new(big.Int).ModInverse(r.e, et) // de == 1 (mod totient(n))
 }
 
 func (r *RSA) Encrypt(input []byte) []byte {
 	m := new(big.Int).SetBytes(input)
 	// encrypt: c = m**e%n
-	return new(big.Int).Exp(m, r.e, r.n).Bytes()
+	return new(big.Int).Exp(m, r.e, r.N).Bytes()
 }
 
 func (r *RSA) Decrypt(input []byte) []byte {
 	c := new(big.Int).SetBytes(input)
 	// decrypt: m = c**d%n
-	return new(big.Int).Exp(c, r.d, r.n).Bytes()
+	return new(big.Int).Exp(c, r.d, r.N).Bytes()
 }
