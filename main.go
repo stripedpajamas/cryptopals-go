@@ -7,14 +7,17 @@ import (
 	"github.com/stripedpajamas/cryptopals/set3/challenge19"
 	"github.com/stripedpajamas/cryptopals/set4/challenge31"
 	"github.com/stripedpajamas/cryptopals/set4/challenge32"
+	"github.com/stripedpajamas/cryptopals/set6/challenge41"
 )
 
 func main() {
 	var crackServer = flag.Bool("crackServer", false, "Run the challenge 19 server")
 	var hmacServer = flag.Bool("hmacServer", false, "Run the challenge 31 server (50ms delay)")
 	var hmacServer2 = flag.Bool("hmacServer2", false, "Run the challenge 31 server (25ms delay)")
-	var hmacAttack = flag.String("hmacAttack", "foo", "Run the challenge 31 attacker")
-	var hmacAttack2 = flag.String("hmacAttack2", "foo", "Run the challenge 32 attacker")
+	var hmacAttack = flag.String("hmacAttack", "", "Run the challenge 31 attacker")
+	var hmacAttack2 = flag.String("hmacAttack2", "", "Run the challenge 32 attacker")
+	var rsaServer = flag.Bool("rsaServer", false, "Run the challenge 41 server")
+	var rsaClient = flag.Bool("rsaClient", false, "Run the challenge 41 client")
 
 	flag.Parse()
 
@@ -35,5 +38,11 @@ func main() {
 	} else if *hmacAttack2 != "" {
 		fmt.Printf("Starting Challenge 32 HMAC attacker for filename %s\n", *hmacAttack2)
 		challenge32.DiscoverValidMAC(*hmacAttack2, true)
+	} else if *rsaServer {
+		fmt.Println("Starting Challenge 41 RSA server on port 8000")
+		challenge41.Server()
+	} else if *rsaClient {
+		fmt.Println("Starting Challenge 41 RSA client with Eve listening")
+		challenge41.Client([]byte("this is a test"), challenge41.Eve)
 	}
 }

@@ -28,9 +28,9 @@ func TestDiscoverPlaintext(t *testing.T) {
 	pt := []byte("There is one mind common to all individual men. Every man is an inlet to the same and to all of the same.")
 	m := new(big.Int).SetBytes(pt)
 
-	c0 := new(big.Int).SetBytes(a.Encrypt(m.Bytes()))
-	c1 := new(big.Int).SetBytes(b.Encrypt(m.Bytes()))
-	c2 := new(big.Int).SetBytes(c.Encrypt(m.Bytes()))
+	c0 := new(big.Int).SetBytes(a.Encrypt(m.Bytes(), a.N, a.E))
+	c1 := new(big.Int).SetBytes(b.Encrypt(m.Bytes(), b.N, b.E))
+	c2 := new(big.Int).SetBytes(c.Encrypt(m.Bytes(), c.N, c.E))
 
 	result := DiscoverPlaintext(c0, c1, c2, a.N, b.N, c.N)
 
