@@ -22,14 +22,14 @@ type Plaintext struct {
 	PT []byte
 }
 
-var RSA challenge39.RSA = challenge39.RSA{}
+var rsa challenge39.RSA = challenge39.RSA{}
 var previousMessages sync.Map = sync.Map{}
 
 func HandlePubRoute(w http.ResponseWriter, r *http.Request) {
 	// just sends back N,e for people to encrypt stuff
 	pub, err := json.Marshal(Pub{
-		N: RSA.N.Bytes(),
-		E: RSA.E.Bytes(),
+		N: rsa.N.Bytes(),
+		E: rsa.E.Bytes(),
 	})
 	if err != nil {
 		panic(err)
@@ -69,7 +69,7 @@ func HandleDecryptRoute(w http.ResponseWriter, r *http.Request) {
 	previousMessages.Store(hash, true)
 
 	// decrypt it
-	pt := RSA.Decrypt(ct)
+	pt := rsa.Decrypt(ct)
 
 	// json it
 	sendBack, err := json.Marshal(Plaintext{PT: pt})
@@ -83,7 +83,7 @@ func HandleDecryptRoute(w http.ResponseWriter, r *http.Request) {
 
 func Server() {
 	// server has rsa stuff so
-	RSA.Initialize()
+	rsa.Initialize()
 
 	// will decrypt something once for you using its private key
 	http.HandleFunc("/decrypt", HandleDecryptRoute)

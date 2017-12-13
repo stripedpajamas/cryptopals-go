@@ -13,7 +13,7 @@ type RSA struct {
 	d *big.Int
 }
 
-var hashPrefixes = map[crypto.Hash][]byte{
+var HashPrefixes = map[crypto.Hash][]byte{
 	crypto.MD5:    {0x30, 0x20, 0x30, 0x0c, 0x06, 0x08, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x02, 0x05, 0x05, 0x00, 0x04, 0x10},
 	crypto.SHA1:   {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14},
 	crypto.SHA224: {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c},
@@ -73,7 +73,7 @@ func (r *RSA) Decrypt(input []byte) []byte {
 func (r *RSA) Sign(inputHash []byte, hash crypto.Hash) []byte {
 	// assuming input hash is a hash made with the supplied hash function
 	// then we prepend it with the asn.1 goop
-	payload := append(hashPrefixes[hash], inputHash...)
+	payload := append(HashPrefixes[hash], inputHash...)
 
 	nLen := len(r.N.Bytes())
 	payloadLen := len(payload)
@@ -108,7 +108,10 @@ func (r *RSA) VerifySignature(N, e *big.Int, inputHash, sig []byte, hash crypto.
 	decSig = append([]byte{0}, decSig...)
 
 	// make a valid payload of asn.1 goop + hash of plaintext
-	validPayload := append(hashPrefixes[hash], inputHash...)
+	validPayload := append(HashPrefixes[hash], inputHash...)
+	if len(decSig) < 4+len(validPayload) {
+		return false
+	}
 
 	// do a dirty loop until we find the where the has begins
 	// this is the 'implementation flaw' that we will exploit in 42
@@ -128,7 +131,7 @@ func (r *RSA) VerifySignature(N, e *big.Int, inputHash, sig []byte, hash crypto.
 		}
 	}
 
-	receivedPayload := decSig[payloadIdx:]
+	receivedPayload := decSig[payloadIdx : payloadIdx+len(HashPrefixes[hash])+hash.Size()]
 	if !bytes.Equal(validPayload, receivedPayload) {
 		return false
 	}
