@@ -34,7 +34,7 @@ func Client(pt []byte, sendFunc func([]byte, chan bool)) {
 	serverE := new(big.Int).SetBytes(PubInfo.E)
 
 	client := challenge39.RSA{}
-	client.Initialize()
+	client.Initialize(1024)
 
 	// encrypt something
 	ct := client.Encrypt(pt, serverN, serverE)

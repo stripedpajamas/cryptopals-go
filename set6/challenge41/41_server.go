@@ -83,7 +83,7 @@ func HandleDecryptRoute(w http.ResponseWriter, r *http.Request) {
 
 func Server() {
 	// server has rsa stuff so
-	rsa.Initialize()
+	rsa.Initialize(1024)
 
 	// will decrypt something once for you using its private key
 	http.HandleFunc("/decrypt", HandleDecryptRoute)

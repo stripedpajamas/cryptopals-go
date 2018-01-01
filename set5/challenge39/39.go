@@ -22,15 +22,15 @@ var HashPrefixes = map[crypto.Hash][]byte{
 	crypto.SHA512: {0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40},
 }
 
-func GetPrimes() (p, q, a, b *big.Int) {
+func GetPrimes(bitlen int) (p, q, a, b *big.Int) {
 	// returns two big primes and their respective minus ones
 	// a = p-1
 	// b = q-1
-	p, err := rand.Prime(rand.Reader, 1024)
+	p, err := rand.Prime(rand.Reader, bitlen)
 	if err != nil {
 		panic(err)
 	}
-	q, err = rand.Prime(rand.Reader, 1024)
+	q, err = rand.Prime(rand.Reader, bitlen)
 	if err != nil {
 		panic(err)
 	}
@@ -43,14 +43,14 @@ func GetPrimes() (p, q, a, b *big.Int) {
 	return p, q, a, b
 }
 
-func (r *RSA) Initialize() {
-	p, q, a, b := GetPrimes()
+func (r *RSA) Initialize(bitlen int) {
+	p, q, a, b := GetPrimes(bitlen)
 	r.E = big.NewInt(3)          // e = 3
 	et := new(big.Int).Mul(a, b) // et = (p-1)(q-1)
 
 	// e must be coprime with (p-1)(q-1)
 	for new(big.Int).GCD(nil, nil, r.E, et).Cmp(big.NewInt(1)) != 0 {
-		p, q, a, b = GetPrimes()
+		p, q, a, b = GetPrimes(bitlen)
 		et = new(big.Int).Mul(a, b)
 	}
 

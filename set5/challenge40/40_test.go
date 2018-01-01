@@ -21,9 +21,9 @@ func TestDiscoverPlaintext(t *testing.T) {
 	b := challenge39.RSA{}
 	c := challenge39.RSA{}
 
-	a.Initialize()
-	b.Initialize()
-	c.Initialize()
+	a.Initialize(1024)
+	b.Initialize(1024)
+	c.Initialize(1024)
 
 	pt := []byte("There is one mind common to all individual men. Every man is an inlet to the same and to all of the same.")
 	m := new(big.Int).SetBytes(pt)
