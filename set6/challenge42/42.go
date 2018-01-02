@@ -2,16 +2,14 @@ package challenge42
 
 import (
 	"crypto"
-	"crypto/sha256"
 	"math/big"
 
 	"github.com/stripedpajamas/cryptopals/set5/challenge39"
 	"github.com/stripedpajamas/cryptopals/set5/challenge40"
 )
 
-func ForgeSignature(input []byte, N *big.Int) []byte {
+func ForgeSignature(inputHash []byte, N *big.Int) []byte {
 	// so first we will hash the input and prepend it with the goop
-	inputHash := sha256.Sum256(input)
 	payload := append(challenge39.HashPrefixes[crypto.SHA256], inputHash[:]...)
 
 	// then we will add the stuff that makes it look real
@@ -28,6 +26,6 @@ func ForgeSignature(input []byte, N *big.Int) []byte {
 	sigCubeRoot.Add(sigCubeRoot, big.NewInt(1))
 
 	// my cube root is always 1 too small because of a rounding error or something
-	// so here i am decrementing it
+	// so here i am incrementing it
 	return sigCubeRoot.Bytes()
 }

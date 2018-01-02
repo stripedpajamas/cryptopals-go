@@ -10,7 +10,7 @@ import (
 var rsa RSA = RSA{}
 
 func init() {
-	rsa.Initialize()
+	rsa.Initialize(1024)
 }
 
 func TestRSA(t *testing.T) {
@@ -35,6 +35,24 @@ func TestRSA_Sign(t *testing.T) {
 	verified := rsa.VerifySignature(rsa.N, rsa.E, ptHash[:], sig, crypto.SHA256)
 
 	if !verified {
+		t.Fail()
+	}
+}
+
+func TestRSA_Pad(t *testing.T) {
+	m := []byte("abcdefg")
+
+	tmp := RSA{}
+	tmp.Initialize(256)
+	padded, err := tmp.Pad(m, tmp.N)
+	if err != nil {
+		panic(err)
+	}
+
+	if padded[0] != 0 || padded[1] != 2 || padded[24] != 0 {
+		t.Fail()
+	}
+	if !bytes.Equal(padded[len(padded)-7:], m) {
 		t.Fail()
 	}
 }

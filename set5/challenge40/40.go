@@ -10,7 +10,7 @@ func CubeRoot(m *big.Int) *big.Int {
 	s := new(big.Int).Add(u, k) // s = u + k
 	two := big.NewInt(2)
 
-	for u.Cmp(s) == -1 { // repeat while u < s
+	for u.Cmp(s) < 0 { // repeat while u < s
 		s = new(big.Int).Set(u)
 		ss := new(big.Int).Exp(s, two, nil) // s^2
 		d := new(big.Int).Div(m, ss)        // m / s^2

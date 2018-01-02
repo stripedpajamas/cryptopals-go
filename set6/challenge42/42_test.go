@@ -11,12 +11,12 @@ import (
 func TestForgeSignature(t *testing.T) {
 	// just for use of the public exponents
 	rsa := challenge39.RSA{}
-	rsa.Initialize()
+	rsa.Initialize(2048)
 
 	input := []byte("hi mom")
-	sig := ForgeSignature(input, rsa.N)
-
 	inputHash := sha256.Sum256(input)
+	sig := ForgeSignature(inputHash[:], rsa.N)
+
 	verified := rsa.VerifySignature(rsa.N, rsa.E, inputHash[:], sig, crypto.SHA256)
 	if !verified {
 		t.Fail()

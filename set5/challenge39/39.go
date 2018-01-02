@@ -5,6 +5,8 @@ import (
 	"crypto"
 	"crypto/rand"
 	"math/big"
+	"errors"
+	"fmt"
 )
 
 type RSA struct {
@@ -26,11 +28,11 @@ func GetPrimes(bitlen int) (p, q, a, b *big.Int) {
 	// returns two big primes and their respective minus ones
 	// a = p-1
 	// b = q-1
-	p, err := rand.Prime(rand.Reader, bitlen)
+	p, err := rand.Prime(rand.Reader, bitlen/2)
 	if err != nil {
 		panic(err)
 	}
-	q, err = rand.Prime(rand.Reader, bitlen)
+	q, err = rand.Prime(rand.Reader, bitlen/2)
 	if err != nil {
 		panic(err)
 	}
@@ -56,6 +58,53 @@ func (r *RSA) Initialize(bitlen int) {
 
 	r.N = new(big.Int).Mul(p, q)           // N = pq
 	r.d = new(big.Int).ModInverse(r.E, et) // de == 1 (mod totient(n))
+}
+
+func (r *RSA) Pad(input []byte, N *big.Int) ([]byte, error) {
+	// PKCS#1, something like 00:02:PADDINGSTRING:00:DATABLOCK
+	NByteLen := len(N.Bytes())
+	inputLen := len(input)
+
+	// input length must not exceed byte length of N - 11
+	if inputLen > NByteLen-11 {
+		err := fmt.Sprintf("input too long for modulus: %d > %d", inputLen, NByteLen-11)
+		return nil, errors.New(err)
+	}
+
+	paddingStringLen := NByteLen - 3 - inputLen
+	paddingString := make([]byte, paddingStringLen)
+
+	// need to fill padding string buffer with non-zero
+	for idx, _ := range paddingString {
+		r := make([]byte, 1)
+		// get a random byte until it's non zero
+		for r[0] == 0 {
+			_, err := rand.Read(r)
+			if err != nil {
+				return nil, err
+			}
+		}
+		paddingString[idx] = r[0]
+	}
+
+	// 00:02:PS:00:INPUT
+	outputLen := 3 + paddingStringLen + inputLen
+	output := make([]byte, outputLen)
+	output[0] = 0
+	output[1] = 2
+	copy(output[2:], paddingString)
+	output[2+paddingStringLen] = 0
+	copy(output[paddingStringLen+3:], input)
+
+	return output, nil
+}
+
+func (r *RSA) EncryptWithPad(input []byte, N, E *big.Int) ([]byte, error) {
+	padded, err := r.Pad(input, N)
+	if err != nil {
+		return nil, err
+	}
+	return r.Encrypt(padded, N, E), nil
 }
 
 func (r *RSA) Encrypt(input []byte, N, E *big.Int) []byte {
@@ -131,7 +180,7 @@ func (r *RSA) VerifySignature(N, e *big.Int, inputHash, sig []byte, hash crypto.
 		}
 	}
 
-	receivedPayload := decSig[payloadIdx : payloadIdx+len(HashPrefixes[hash])+hash.Size()]
+	receivedPayload := decSig[payloadIdx: payloadIdx+len(HashPrefixes[hash])+hash.Size()]
 	if !bytes.Equal(validPayload, receivedPayload) {
 		return false
 	}
