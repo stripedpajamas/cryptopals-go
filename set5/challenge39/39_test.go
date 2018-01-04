@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto"
 	"crypto/sha256"
+	"fmt"
 	"testing"
 )
 
@@ -53,6 +54,24 @@ func TestRSA_Pad(t *testing.T) {
 		t.Fail()
 	}
 	if !bytes.Equal(padded[len(padded)-7:], m) {
+		t.Fail()
+	}
+}
+
+func TestRSA_RemovePad(t *testing.T) {
+	m := []byte("abcdefg")
+
+	tmp := RSA{}
+	tmp.Initialize(256)
+	padded, err := tmp.Pad(m, tmp.N)
+	if err != nil {
+		panic(err)
+	}
+
+	removedPad := tmp.RemovePad(padded)
+
+	if !bytes.Equal(removedPad, m) {
+		fmt.Println(removedPad)
 		t.Fail()
 	}
 }

@@ -9,13 +9,13 @@ func CubeRoot(m *big.Int) *big.Int {
 	u := new(big.Int).Set(m)
 	s := new(big.Int).Add(u, k) // s = u + k
 	two := big.NewInt(2)
+	ss, d, t := new(big.Int), new(big.Int), new(big.Int)
 
 	for u.Cmp(s) < 0 { // repeat while u < s
-		s = new(big.Int).Set(u)
-		ss := new(big.Int).Exp(s, two, nil) // s^2
-		d := new(big.Int).Div(m, ss)        // m / s^2
-		t := new(big.Int).Mul(two, s)       // 2s
-		t.Add(t, d)                         // t = 2s + (m/s^2)
+		s.Set(u)
+		ss.Exp(s, two, nil)     // s^2
+		d.Div(m, ss)            // m / s^2
+		t.Mul(two, s).Add(t, d) // t = 2s + (m/s^2)
 		u.Div(t, k)
 	}
 

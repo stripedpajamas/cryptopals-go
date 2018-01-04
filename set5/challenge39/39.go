@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"crypto"
 	"crypto/rand"
-	"math/big"
 	"errors"
 	"fmt"
+	"math/big"
 )
 
 type RSA struct {
@@ -37,21 +37,21 @@ func GetPrimes(bitlen int) (p, q, a, b *big.Int) {
 		panic(err)
 	}
 
-	a = new(big.Int)
-	b = new(big.Int)
-	a.Sub(p, big.NewInt(1))
-	b.Sub(q, big.NewInt(1))
+	a = new(big.Int).Sub(p, big.NewInt(1))
+	b = new(big.Int).Sub(q, big.NewInt(1))
 
 	return p, q, a, b
 }
 
 func (r *RSA) Initialize(bitlen int) {
+	big1 := big.NewInt(1)
 	p, q, a, b := GetPrimes(bitlen)
 	r.E = big.NewInt(3)          // e = 3
 	et := new(big.Int).Mul(a, b) // et = (p-1)(q-1)
+	tmp := new(big.Int)
 
 	// e must be coprime with (p-1)(q-1)
-	for new(big.Int).GCD(nil, nil, r.E, et).Cmp(big.NewInt(1)) != 0 {
+	for tmp.GCD(nil, nil, r.E, et).Cmp(big1) != 0 {
 		p, q, a, b = GetPrimes(bitlen)
 		et = new(big.Int).Mul(a, b)
 	}
@@ -97,6 +97,20 @@ func (r *RSA) Pad(input []byte, N *big.Int) ([]byte, error) {
 	copy(output[paddingStringLen+3:], input)
 
 	return output, nil
+}
+
+func (r *RSA) RemovePad(input []byte) []byte {
+	// takes in a decrypted input and returns the stuff after the 00
+	// 00:02:PS:00:RETURNME
+	for idx := 2; idx < len(input); idx++ {
+		if input[idx] == 0 {
+			if idx == len(input)-1 {
+				return []byte{}
+			}
+			return input[idx+1:]
+		}
+	}
+	return []byte{}
 }
 
 func (r *RSA) EncryptWithPad(input []byte, N, E *big.Int) ([]byte, error) {
@@ -180,7 +194,7 @@ func (r *RSA) VerifySignature(N, e *big.Int, inputHash, sig []byte, hash crypto.
 		}
 	}
 
-	receivedPayload := decSig[payloadIdx: payloadIdx+len(HashPrefixes[hash])+hash.Size()]
+	receivedPayload := decSig[payloadIdx : payloadIdx+len(HashPrefixes[hash])+hash.Size()]
 	if !bytes.Equal(validPayload, receivedPayload) {
 		return false
 	}

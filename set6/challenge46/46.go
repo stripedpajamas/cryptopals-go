@@ -10,7 +10,7 @@ import (
 var rsa = challenge39.RSA{}
 
 func init() {
-	rsa.Initialize(1024)
+	rsa.Initialize(2048)
 }
 
 func Oracle(ciphertext []byte) bool {
