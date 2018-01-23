@@ -1,0 +1,35 @@
+<html>
+
+<head>
+  <title>Challenge 50</title>
+  <script type="text/javascript" src="https://cdn.rawgit.com/ricmoo/aes-js/e27b99df/index.js"></script>
+</head>
+
+<body>
+  see what gets alerted
+</body>
+<script>
+  // putting the script into the DOM
+  window.onload = () => {
+    window.fetch("/script")
+      .then(res => res.arrayBuffer())
+      .then((buffer) => {
+        const bytes = new Uint8Array(buffer);
+        const key = [89, 69, 76, 76, 79, 87, 32, 83, 85, 66, 77, 65, 82, 73, 78, 69];
+        const iv = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const paddedBytes = aesjs.padding.pkcs7.pad(bytes)
+        const aesCbc = new aesjs.ModeOfOperation.cbc(key, iv);
+        const encryptedBytes = aesCbc.encrypt(paddedBytes);
+        const mac = aesjs.utils.hex.fromBytes(encryptedBytes.slice(-16))
+        const plaintext = aesjs.utils.utf8.fromBytes(bytes);
+        if (mac === '296b8d7cb78a243dda4d0a61d33bbdd1') {
+          const s = document.createElement('script');
+          s.type = 'text/javascript';
+          s.appendChild(document.createTextNode(plaintext));
+          document.body.appendChild(s);
+        }
+      })
+  }
+</script>
+
+</html>

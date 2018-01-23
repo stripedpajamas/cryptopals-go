@@ -8,6 +8,7 @@ import (
 	"github.com/stripedpajamas/cryptopals/set4/challenge31"
 	"github.com/stripedpajamas/cryptopals/set4/challenge32"
 	"github.com/stripedpajamas/cryptopals/set6/challenge41"
+	"github.com/stripedpajamas/cryptopals/set7/challenge50"
 )
 
 func main() {
@@ -18,6 +19,7 @@ func main() {
 	var hmacAttack2 = flag.String("hmacAttack2", "", "Run the challenge 32 attacker")
 	var rsaServer = flag.Bool("rsaServer", false, "Run the challenge 41 server")
 	var rsaClient = flag.Bool("rsaClient", false, "Run the challenge 41 client")
+	var cbcmacServer = flag.Bool("cbcmacServer", false, "Run the challenge 50 server")
 
 	flag.Parse()
 
@@ -44,5 +46,8 @@ func main() {
 	} else if *rsaClient {
 		fmt.Println("Starting Challenge 41 RSA client with Eve listening")
 		challenge41.Client([]byte("this is a test"), challenge41.Eve)
+	} else if *cbcmacServer {
+		fmt.Println("Starting Challenge 50 CBC MAC server on port 8000")
+		challenge50.HTTPServer()
 	}
 }
