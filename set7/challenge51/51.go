@@ -78,15 +78,18 @@ func GuessSessionKeyStream(verbose bool) []byte {
 }
 
 func GuessSessionKeyBlock(verbose bool) []byte {
+	workingThing := []byte("Host: hapless.com\nCookie: sessionid=")
 	recoveredSessionID := []byte("sessionid=")
 	var currentWinner int
+
 	for sessionIdx := 0; currentWinner != 10; sessionIdx++ {
-		currentTarget := append(recoveredSessionID, 0)
+		temporaryInsanity := append([]byte("ö÷øùúûx"), workingThing...)
+		currentTarget := append(temporaryInsanity, 0)
 		currentScore := CompressionOracle(currentTarget, false)
 		currentWinner = 0
 
 		for i := 1; i < 255; i++ {
-			currentTarget = append(recoveredSessionID, byte(i))
+			currentTarget = append(temporaryInsanity, byte(i))
 			currentCompression := CompressionOracle(currentTarget, false)
 			if currentCompression < currentScore {
 				currentScore = currentCompression
@@ -94,6 +97,7 @@ func GuessSessionKeyBlock(verbose bool) []byte {
 			}
 		}
 
+		workingThing = append(workingThing, byte(currentWinner))
 		recoveredSessionID = append(recoveredSessionID, byte(currentWinner))
 		if verbose {
 			fmt.Println(string(recoveredSessionID))

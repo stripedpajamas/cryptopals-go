@@ -20,7 +20,7 @@ func TestGuessSessionKeyStream(t *testing.T) {
 }
 
 func TestGuessSessionKeyBlock(t *testing.T) {
-	guessedSessionKey := GuessSessionKeyBlock(true)
+	guessedSessionKey := GuessSessionKeyBlock(false)
 	if string(guessedSessionKey) != "sessionid=TmV2ZXIgcmV2ZWFsIHRoZSBXdS1UYW5nIFNlY3JldCE=\n" {
 		t.Fail()
 	}
