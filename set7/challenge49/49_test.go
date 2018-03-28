@@ -80,49 +80,49 @@ func TestServerForgerV1(t *testing.T) {
 	}
 }
 
-// func TestServerClientV2(t *testing.T) {
-// 	sharedKey := challenge11.GenerateRandomKey()
-// 	sharedIV := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-// 	server := &ServerV2{
-// 		key: sharedKey,
-// 		iv:  sharedIV,
-// 	}
-// 	normalClient := &ClientV2{
-// 		account:  1,
-// 		key:      sharedKey,
-// 		iv:       sharedIV,
-// 		sendFunc: SendV2,
-// 	}
+func TestServerClientV2(t *testing.T) {
+	sharedKey := challenge11.GenerateRandomKey()
+	sharedIV := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	server := &ServerV2{
+		key: sharedKey,
+		iv:  sharedIV,
+	}
+	normalClient := &ClientV2{
+		account:  1,
+		key:      sharedKey,
+		iv:       sharedIV,
+		sendFunc: SendV2,
+	}
 
-// 	txList := []Transaction{
-// 		{to: 2, amount: 50},
-// 		{to: 3, amount: 45},
-// 	}
+	txList := []Transaction{
+		{to: 2, amount: 50},
+		{to: 3, amount: 45},
+	}
 
-// 	response := normalClient.Transfer(txList, server)
+	response := normalClient.Transfer(txList, server)
 
-// 	if !response.success {
-// 		t.Fail()
-// 	}
+	if !response.success {
+		t.Fail()
+	}
 
-// 	// now try to fake a transfer
-// 	myMessage := url.Values{}
-// 	myMessage.Add("from", "1")
-// 	myMessage.Add("tx_list", "2:500;3:140")
+	// now try to fake a transfer
+	myMessage := url.Values{}
+	myMessage.Add("from", "1")
+	myMessage.Add("tx_list", "2:500;3:140")
 
-// 	message := []byte(myMessage.Encode())
-// 	invalidRequest := &TransferRequestV2{
-// 		message: message,
-// 		mac:     []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 9, 8, 7, 6, 5, 4},
-// 	}
+	message := []byte(myMessage.Encode())
+	invalidRequest := &TransferRequestV2{
+		message: message,
+		mac:     []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 9, 8, 7, 6, 5, 4},
+	}
 
-// 	response = SendV2(server, invalidRequest)
+	response = SendV2(server, invalidRequest)
 
-// 	// should not be allowed because the mac is no bueno
-// 	if response.success {
-// 		t.Fail()
-// 	}
-// }
+	// should not be allowed because the mac is no bueno
+	if response.success {
+		t.Fail()
+	}
+}
 
 func TestLengthExtension(t *testing.T) {
 	sharedKey := challenge11.GenerateRandomKey()

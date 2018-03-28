@@ -27,12 +27,12 @@ func TestBB98(t *testing.T) {
 		panic(err)
 	}
 
-	Verbose = true
+	Verbose = false
 	recovered := BB98(c, rsa.N, rsa.E, Oracle)
 	recovered = append([]byte{0}, recovered...)
 
 	if !bytes.Equal(recovered, padded) {
-		fmt.Printf("Original:\t%x\nRecovered:\t%x\n", padded, recovered)
+		fmt.Printf("Wanted:\t%x\nGot:\t%x\n", padded, recovered)
 		t.Fail()
 	}
 }

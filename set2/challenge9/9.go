@@ -4,6 +4,8 @@ import "bytes"
 
 func Pad(input []byte, blockSize int) []byte {
 	inputLen := len(input)
+	output := make([]byte, inputLen)
+	copy(output, input)
 	diff := blockSize - (inputLen % blockSize)
 	var pad []byte
 
@@ -16,7 +18,7 @@ func Pad(input []byte, blockSize int) []byte {
 		pad = bytes.Repeat([]byte{byte(diff)}, diff)
 	}
 
-	return append(input, pad...)
+	return append(output, pad...)
 }
 
 func Unpad(input []byte, blockSize int) []byte {

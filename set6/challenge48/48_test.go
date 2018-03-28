@@ -21,7 +21,7 @@ func TestBB98(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	challenge47.Verbose = true
+	challenge47.Verbose = false
 	recovered := challenge47.BB98(c, rsa.N, rsa.E, Oracle)
 	recovered = append([]byte{0}, recovered...)
 

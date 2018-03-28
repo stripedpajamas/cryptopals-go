@@ -147,8 +147,6 @@ func (s *ServerV2) Transfer(t *TransferRequestV2) TransferResponseV2 {
 		}
 	}
 
-	fmt.Println("Mac's don't equal")
-
 	// mac is bad, success is false
 	return TransferResponseV2{
 		success: false,
