@@ -5,11 +5,13 @@ import (
 	"encoding/hex"
 )
 
-func Hex2b64(hexString string) string {
+// Hex2b64 converts a string of hex encoded bytes (e.g. deadbeef)
+// into a string of its Base64 representation
+func Hex2b64(hexString string) (string, error) {
 	hexBytes, err := hex.DecodeString(hexString)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	return base64.StdEncoding.EncodeToString(hexBytes)
+	return base64.StdEncoding.EncodeToString(hexBytes), nil
 }

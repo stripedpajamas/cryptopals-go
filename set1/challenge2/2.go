@@ -5,17 +5,19 @@ import (
 	"errors"
 )
 
+// Xor takes two hex encoded strings and xors them together,
+// returning the resulting hex encoded bytes
 func Xor(a, b string) (string, error) {
 	if len(a) != len(b) {
 		return "", errors.New("Inputs must have equal length")
 	}
 	aBytes, err := hex.DecodeString(a)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	bBytes, err := hex.DecodeString(b)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	aLen := len(aBytes)

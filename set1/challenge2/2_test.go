@@ -9,7 +9,11 @@ func TestXor(t *testing.T) {
 	c2ExpectedOutput := "746865206b696420646f6e277420706c6179"
 
 	c2output, err := Xor(c2inputA, c2inputB)
-	if err != nil || c2output != c2ExpectedOutput {
-		t.Fail()
+	if err != nil {
+		t.Error("Unexpected error encountered:", err)
+	}
+
+	if c2output != c2ExpectedOutput {
+		t.Errorf("\nWanted: \t%s\nGot: \t\t%s", c2ExpectedOutput, c2output)
 	}
 }
