@@ -3,7 +3,6 @@ package challenge52
 import (
 	"bytes"
 	"fmt"
-	"math"
 	"math/rand"
 	"time"
 
@@ -113,44 +112,52 @@ func CheapestCollisionMachine(state chan []byte, collisions chan Collision) {
 	}
 }
 
-func FindCheapestCollisions(n int) [][]byte {
-	var multiCollisions [][]byte
+func FindCheapestCollisions(want chan int, result chan [][]byte) {
 	initialState := make(chan []byte)
 	collisions := make(chan Collision)
-	fullCollisionLength := int(math.Pow(2, float64(n)))
 
 	go CheapestCollisionMachine(initialState, collisions)
 	defer close(initialState)
 
-	// seed collision machine with our test initial state
-	initialState <- []byte("hi")
+	// consumer will tell us how many 2^n-collisions to generate
+	for n := range want {
+		var multiCollisions [][]byte
+		collectedCollisions := 0
 
-	for len(multiCollisions) < fullCollisionLength {
-		collision := <-collisions
-		initialState <- collision.h
-
-		// update our wild multicollisions array
-		newCollisions := [][]byte{}
-
-		if len(multiCollisions) > 0 {
-			for _, c := range multiCollisions {
-				cola := challenge9.Pad(c, 16)
-				colb := challenge9.Pad(c, 16)
-				cola = append(cola, collision.a...)
-				colb = append(colb, collision.b...)
-				newCollisions = append(newCollisions, cola, colb)
+		// seed collision machine with our test initial state
+		initialState <- []byte("hi")
+		for collectedCollisions < n {
+			collision := <-collisions
+			collectedCollisions++
+			if collectedCollisions < n {
+				// if we haven't reached our quota, get the machine working on the next one
+				initialState <- collision.h
 			}
-		} else {
-			newCollisions = [][]byte{collision.a, collision.b}
-		}
-		multiCollisions = newCollisions
-	}
 
-	return multiCollisions
+			// update our wild multicollisions array
+			newCollisions := [][]byte{}
+
+			if len(multiCollisions) > 0 {
+				for _, c := range multiCollisions {
+					cola := challenge9.Pad(c, 16)
+					colb := challenge9.Pad(c, 16)
+					cola = append(cola, collision.a...)
+					colb = append(colb, collision.b...)
+					newCollisions = append(newCollisions, cola, colb)
+				}
+			} else {
+				newCollisions = [][]byte{collision.a, collision.b}
+			}
+			multiCollisions = newCollisions
+		}
+
+		// now that we've generated them, we'll send them to the consumer
+		result <- multiCollisions
+	}
 }
 
 func FindMultiCollision() *Collision {
-	// 	Pick the "cheaper" hash function (chepeast)
+	//  Pick the "cheaper" hash function (chepeast)
 	//  Generate 2^(b2/2) colliding messages in it (2^12 colliding messages)
 	//  There's a good chance your message pool has a collision in cheap.
 	//  Find it.
@@ -159,8 +166,15 @@ func FindMultiCollision() *Collision {
 
 	var multiCollision *Collision
 
+	collisionsWanted := make(chan int)
+	collisionsFound := make(chan [][]byte)
+
+	go FindCheapestCollisions(collisionsWanted, collisionsFound)
+	defer close(collisionsWanted)
+
 	for multiCollision == nil {
-		collisions := FindCheapestCollisions(12)
+		collisionsWanted <- 12
+		collisions := <-collisionsFound
 
 		for _, collision := range collisions {
 			h := CheapHash(collision, initialState)

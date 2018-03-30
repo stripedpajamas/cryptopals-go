@@ -2,6 +2,7 @@ package challenge52
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"testing"
 )
@@ -33,44 +34,75 @@ func TestBeefyHash(t *testing.T) {
 	}
 }
 
-func TestCheapestCollisionMachine(t *testing.T) {
-	testInitialState := []byte("hi")
-	initialState := make(chan []byte)
-	collisions := make(chan Collision)
-	go CheapestCollisionMachine(initialState, collisions)
-	defer close(initialState)
+// func TestCheapestCollisionMachine(t *testing.T) {
+// 	testInitialState := []byte("hi")
+// 	initialState := make(chan []byte)
+// 	collisions := make(chan Collision)
+// 	go CheapestCollisionMachine(initialState, collisions)
+// 	defer close(initialState)
 
-	initialState <- testInitialState
-	collision := <-collisions
+// 	initialState <- testInitialState
+// 	collision := <-collisions
 
-	if !bytes.Equal(CheapestHashEver(collision.a, testInitialState), CheapestHashEver(collision.b, testInitialState)) {
-		t.Fail()
-	}
-}
+// 	if !bytes.Equal(CheapestHashEver(collision.a, testInitialState), CheapestHashEver(collision.b, testInitialState)) {
+// 		t.Fail()
+// 	}
+// }
 
-func TestFindCheapestCollisions(t *testing.T) {
-	hashMap := make(map[string][]byte)
-	collisions := FindCheapestCollisions(3)
+func confirmGoodCollisions(collisions [][]byte, hashMap map[string][]byte) (error, int) {
+	h := CheapestHashEver(collisions[0], []byte("hi"))
 	for _, c := range collisions {
 		hs := fmt.Sprintf("%0x", c)
 		if _, found := hashMap[hs]; found {
 			// already in map -- duplicate collision, doesn't count
-			t.Fail()
-		} else {
-			hashMap[hs] = c
+			return errors.New("Duplicate collision"), 0
 		}
-	}
-	if len(collisions) != 8 || len(hashMap) != 8 {
-		t.Fail()
-	}
+		hashMap[hs] = c
 
-	// they should all hash to the same value
-	h := CheapestHashEver(collisions[0], []byte("hi"))
-	for _, c := range collisions {
+		// confirm this hash has the same hash as the first hash
 		h2 := CheapestHashEver(c, []byte("hi"))
 		if !bytes.Equal(h, h2) {
-			t.Fail()
+			return errors.New("Collision didn't result in same hash"), 0
 		}
+	}
+	// unique collisions = len(hashMap)
+	return nil, len(hashMap)
+}
+
+func TestFindCheapestCollisions(t *testing.T) {
+	collisionsWanted := make(chan int)
+	collisionsFound := make(chan [][]byte)
+
+	go FindCheapestCollisions(collisionsWanted, collisionsFound)
+	defer close(collisionsWanted)
+
+	// ask the finder for 3 multi collisions
+	collisionsWanted <- 3
+	collisions := <-collisionsFound
+
+	testHashMap := make(map[string][]byte)
+	err, length := confirmGoodCollisions(collisions, testHashMap)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if length != 8 {
+		t.Errorf("Wanted %d collisions, got %d", 8, length)
+	}
+
+	// generate some more collisions and make sure they aren't the same as the previous
+	collisionsWanted <- 4
+	collisions = <-collisionsFound
+	err, length = confirmGoodCollisions(collisions, testHashMap)
+
+	if err != nil {
+		t.Error("Second round", err)
+	}
+
+	// 24 = 8 + 16 = first round (2^3) + second round (2^4)
+	if length != 24 {
+		t.Errorf("Second round: wanted %d collisions, got %d", 24, length)
 	}
 }
 
