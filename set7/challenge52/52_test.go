@@ -34,9 +34,16 @@ func TestBeefyHash(t *testing.T) {
 }
 
 func TestCheapestCollisionMachine(t *testing.T) {
-	initialState := []byte("hi")
-	collision := CheapestCollisionMachine(initialState)
-	if !bytes.Equal(CheapestHashEver(collision.a, initialState), CheapestHashEver(collision.b, initialState)) {
+	testInitialState := []byte("hi")
+	initialState := make(chan []byte)
+	collisions := make(chan Collision)
+	go CheapestCollisionMachine(initialState, collisions)
+	defer close(initialState)
+
+	initialState <- testInitialState
+	collision := <-collisions
+
+	if !bytes.Equal(CheapestHashEver(collision.a, testInitialState), CheapestHashEver(collision.b, testInitialState)) {
 		t.Fail()
 	}
 }
@@ -56,6 +63,15 @@ func TestFindCheapestCollisions(t *testing.T) {
 	if len(collisions) != 8 || len(hashMap) != 8 {
 		t.Fail()
 	}
+
+	// they should all hash to the same value
+	h := CheapestHashEver(collisions[0], []byte("hi"))
+	for _, c := range collisions {
+		h2 := CheapestHashEver(c, []byte("hi"))
+		if !bytes.Equal(h, h2) {
+			t.Fail()
+		}
+	}
 }
 
 func TestFindMultiCollision(t *testing.T) {
@@ -73,4 +89,15 @@ func TestFindMultiCollision(t *testing.T) {
 	if !bytes.Equal(BeefyHash(collision.a, initialState), BeefyHash(collision.b, initialState)) {
 		t.Fail()
 	}
+}
+
+var benchmarkResult *Collision
+
+func BenchmarkFindMultiCollision(b *testing.B) {
+	var collision *Collision
+	for i := 0; i < b.N; i++ {
+		collision = FindMultiCollision()
+	}
+
+	benchmarkResult = collision
 }

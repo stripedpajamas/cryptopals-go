@@ -67,63 +67,73 @@ func BeefyHash(input, initialState []byte) []byte {
 	return output
 }
 
-func CheapestCollisionMachine(initialState []byte) *Collision {
+func CheapestCollisionMachine(state chan []byte, collisions chan Collision) {
+	// will receive initial state in channel, send collisions in other channel
 	rand.Seed(time.Now().Unix())
-	var collision *Collision
-	hashes := make(map[string][]byte)
-	for {
-		a, b := make([]byte, 4), make([]byte, 4)
-		for bytes.Equal(a, b) {
-			rand.Read(a)
-			rand.Read(b)
-		}
-		h, h2 := CheapestHashEver(a, initialState), CheapestHashEver(b, initialState)
-		hs, hs2 := fmt.Sprintf("%0x", h), fmt.Sprintf("%0x", h2)
+	var collision Collision
 
-		if val, found := hashes[hs]; found {
-			// a's hash is already in the map
-			if !bytes.Equal(a, val) {
-				// wouldn't be much of a collision if the inputs were the same
-				collision = &Collision{a: a, b: val, h: h}
+	for initialState := range state {
+		hashes := make(map[string][]byte)
+		for {
+			a, b := make([]byte, 4), make([]byte, 4)
+			for bytes.Equal(a, b) {
+				rand.Read(a)
+				rand.Read(b)
+			}
+			h, h2 := CheapestHashEver(a, initialState), CheapestHashEver(b, initialState)
+			hs, hs2 := fmt.Sprintf("%0x", h), fmt.Sprintf("%0x", h2)
+
+			if val, found := hashes[hs]; found {
+				// a's hash is already in the map
+				if !bytes.Equal(a, val) {
+					// wouldn't be much of a collision if the inputs were the same
+					collision = Collision{a: a, b: val, h: h}
+					break
+				}
+			} else if val, found := hashes[hs2]; found {
+				// b's hash is already in the map
+				if !bytes.Equal(a, val) {
+					// wouldn't be much of a collision if the inputs were the same
+					collision = Collision{a: val, b: b, h: h2}
+					break
+				}
+			} else {
+				// nothing in the map yet, so update it with the new values
+				hashes[hs] = a
+				hashes[hs2] = b
+			}
+
+			// might as well see if h(a) = h(b) while we're here
+			if bytes.Equal(h, h2) {
+				collision = Collision{a, b, h}
 				break
 			}
-		} else if val, found := hashes[hs2]; found {
-			// b's hash is already in the map
-			if !bytes.Equal(a, val) {
-				// wouldn't be much of a collision if the inputs were the same
-				collision = &Collision{a: val, b: b, h: h2}
-				break
-			}
-		} else {
-			// nothing in the map yet, so update it with the new values
-			hashes[hs] = a
-			hashes[hs2] = b
 		}
-
-		// might as well see if h(a) = h(b) while we're here
-		if bytes.Equal(h, h2) {
-			collision = &Collision{a, b, h}
-			break
-		}
+		collisions <- collision
 	}
-
-	return collision
 }
 
 func FindCheapestCollisions(n int) [][]byte {
-	var collisions [][]byte
-	initialState := []byte("hi")
+	var multiCollisions [][]byte
+	initialState := make(chan []byte)
+	collisions := make(chan Collision)
 	fullCollisionLength := int(math.Pow(2, float64(n)))
 
-	for len(collisions) < fullCollisionLength {
-		collision := CheapestCollisionMachine(initialState)
-		initialState = collision.h
+	go CheapestCollisionMachine(initialState, collisions)
+	defer close(initialState)
+
+	// seed collision machine with our test initial state
+	initialState <- []byte("hi")
+
+	for len(multiCollisions) < fullCollisionLength {
+		collision := <-collisions
+		initialState <- collision.h
 
 		// update our wild multicollisions array
 		newCollisions := [][]byte{}
 
-		if len(collisions) > 0 {
-			for _, c := range collisions {
+		if len(multiCollisions) > 0 {
+			for _, c := range multiCollisions {
 				cola := challenge9.Pad(c, 16)
 				colb := challenge9.Pad(c, 16)
 				cola = append(cola, collision.a...)
@@ -133,10 +143,10 @@ func FindCheapestCollisions(n int) [][]byte {
 		} else {
 			newCollisions = [][]byte{collision.a, collision.b}
 		}
-		collisions = newCollisions
+		multiCollisions = newCollisions
 	}
 
-	return collisions
+	return multiCollisions
 }
 
 func FindMultiCollision() *Collision {
