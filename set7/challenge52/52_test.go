@@ -34,20 +34,20 @@ func TestBeefyHash(t *testing.T) {
 	}
 }
 
-// func TestCheapestCollisionMachine(t *testing.T) {
-// 	testInitialState := []byte("hi")
-// 	initialState := make(chan []byte)
-// 	collisions := make(chan Collision)
-// 	go CheapestCollisionMachine(initialState, collisions)
-// 	defer close(initialState)
+func TestCheapestCollisionMachine(t *testing.T) {
+	testInitialState := []byte("hi")
+	initialState := make(chan []byte)
+	collisions := make(chan Collision)
+	go CheapestCollisionMachine(initialState, collisions)
+	defer close(initialState)
 
-// 	initialState <- testInitialState
-// 	collision := <-collisions
+	initialState <- testInitialState
+	collision := <-collisions
 
-// 	if !bytes.Equal(CheapestHashEver(collision.a, testInitialState), CheapestHashEver(collision.b, testInitialState)) {
-// 		t.Fail()
-// 	}
-// }
+	if !bytes.Equal(CheapestHashEver(collision.a, testInitialState), CheapestHashEver(collision.b, testInitialState)) {
+		t.Fail()
+	}
+}
 
 func confirmGoodCollisions(collisions [][]byte, hashMap map[string][]byte) (error, int) {
 	h := CheapestHashEver(collisions[0], []byte("hi"))
