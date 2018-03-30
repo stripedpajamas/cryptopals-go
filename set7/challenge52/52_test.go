@@ -74,3 +74,14 @@ func TestFindMultiCollision(t *testing.T) {
 		t.Fail()
 	}
 }
+
+var benchmarkResult *Collision
+
+func BenchmarkFindMultiCollision(b *testing.B) {
+	var collision *Collision
+	for i := 0; i < b.N; i++ {
+		collision = FindMultiCollision()
+	}
+
+	benchmarkResult = collision
+}
