@@ -27,7 +27,12 @@ func CheapestHashEver(message, initialState []byte) []byte {
 	// we're only going to be encrypting one block at a time
 	// we'll use aes in ecb mode
 
-	input := challenge9.Pad(message, 16)
+	var input []byte
+	if len(message)%16 > 0 {
+		input = challenge9.Pad(message, 16)
+	} else {
+		input = message
+	}
 
 	h := initialState
 
@@ -47,7 +52,12 @@ func CheapestHashEver(message, initialState []byte) []byte {
 
 func CheapHash(message, initialState []byte) []byte {
 	// same as cheapest, but is a 3-byte hash instead of 2-bytes
-	input := challenge9.Pad(message, 16)
+	var input []byte
+	if len(message)%16 > 0 {
+		input = challenge9.Pad(message, 16)
+	} else {
+		input = message
+	}
 	h := initialState
 	for i := 0; i < len(input); i += 16 {
 		currentBlock := input[i : i+16]
