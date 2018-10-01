@@ -6,11 +6,20 @@ import (
 	"testing"
 )
 
+func TestPad(t *testing.T) {
+	input := []byte("yellow submarin")
+	output := Pad(input)
+
+	if len(output)%16 != 0 {
+		t.Fail()
+	}
+}
+
 func TestCheapestHashEver(t *testing.T) {
 	input := []byte("happiness is ever present in the sandwich")
 	hash := CheapestHashEver(input, []byte("hi"))
 
-	if !bytes.Equal(hash, []byte{203, 212}) {
+	if !bytes.Equal(hash, []byte{81, 114}) {
 		t.Fail()
 	}
 }
@@ -19,7 +28,7 @@ func TestCheapHash(t *testing.T) {
 	input := []byte("happiness is ever present in the sandwich")
 	hash := CheapHash(input, []byte("hi"))
 
-	if !bytes.Equal(hash, []byte{88, 39, 89}) {
+	if !bytes.Equal(hash, []byte{163, 199, 191}) {
 		t.Fail()
 	}
 }
@@ -28,7 +37,7 @@ func TestBeefyHash(t *testing.T) {
 	input := []byte("happiness is ever present in the sandwich")
 	hash := BeefyHash(input, []byte("hi"))
 
-	if !bytes.Equal(hash, []byte{203, 212, 88, 39, 89}) {
+	if !bytes.Equal(hash, []byte{81, 114, 163, 199, 191}) {
 		t.Fail()
 	}
 }

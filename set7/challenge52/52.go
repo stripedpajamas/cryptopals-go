@@ -8,13 +8,37 @@ import (
 	"time"
 
 	"github.com/stripedpajamas/cryptopals/set1/challenge7"
-	"github.com/stripedpajamas/cryptopals/set2/challenge9"
 )
 
 type Collision struct {
 	a []byte
 	b []byte
 	h []byte
+}
+
+// Pad makes input a multiple of 16 bytes
+func Pad(input []byte) []byte {
+	// Padding. Add a 1 bit and 0 bits
+	pad := new(bytes.Buffer)
+	length := len(input)
+	var tmp [16]byte
+	tmp[0] = 0x80
+	if length%16 < 8 {
+		pad.Write(tmp[0 : 8-length%16])
+	} else {
+		pad.Write(tmp[0 : 16+8-length%16])
+	}
+
+	// Length in bits.
+	length <<= 3
+	for i := uint(0); i < 8; i++ {
+		tmp[i] = byte(length >> (8 * i))
+	}
+	pad.Write(tmp[0:8])
+
+	output := make([]byte, len(input))
+	copy(output, input)
+	return append(output, pad.Bytes()...)
 }
 
 func CheapestHashEver(message, initialState []byte) []byte {
@@ -27,12 +51,13 @@ func CheapestHashEver(message, initialState []byte) []byte {
 	// we're only going to be encrypting one block at a time
 	// we'll use aes in ecb mode
 
-	var input []byte
-	if len(message)%16 > 0 {
-		input = challenge9.Pad(message, 16)
-	} else {
-		input = message
-	}
+	input := Pad(message)
+	// var input []byte
+	// if len(message)%16 > 0 {
+	// 	input = challenge9.Pad(message, 16)
+	// } else {
+	// 	input = message
+	// }
 
 	h := initialState
 
@@ -40,7 +65,8 @@ func CheapestHashEver(message, initialState []byte) []byte {
 		currentBlock := input[i : i+16]
 
 		// h needs to be the 'key' for the encryption, so we'll need to make it 16 bytes long
-		hKey := challenge9.Pad(h, 16)
+		hKey := Pad(h)
+		// hKey := challenge9.Pad(h, 16)
 		enc := challenge7.ECBEncrypter(currentBlock, hKey)
 
 		// our hash is only 2 bytes, so trim the output to the 2 most significant
@@ -52,16 +78,18 @@ func CheapestHashEver(message, initialState []byte) []byte {
 
 func CheapHash(message, initialState []byte) []byte {
 	// same as cheapest, but is a 3-byte hash instead of 2-bytes
-	var input []byte
-	if len(message)%16 > 0 {
-		input = challenge9.Pad(message, 16)
-	} else {
-		input = message
-	}
+	input := Pad(message)
+	// var input []byte
+	// if len(message)%16 > 0 {
+	// 	input = challenge9.Pad(message, 16)
+	// } else {
+	// 	input = message
+	// }
 	h := initialState
 	for i := 0; i < len(input); i += 16 {
 		currentBlock := input[i : i+16]
-		hKey := challenge9.Pad(h, 16)
+		hKey := Pad(h)
+		// hKey := challenge9.Pad(h, 16)
 		enc := challenge7.ECBEncrypter(currentBlock, hKey)
 		h = enc[:3]
 	}
@@ -134,8 +162,10 @@ func FindCheapestCollisions(n int) [][]byte {
 
 		if len(collisions) > 0 {
 			for _, c := range collisions {
-				cola := challenge9.Pad(c, 16)
-				colb := challenge9.Pad(c, 16)
+				cola := Pad(c)
+				colb := Pad(c)
+				// cola := challenge9.Pad(c, 16)
+				// colb := challenge9.Pad(c, 16)
 				cola = append(cola, collision.a...)
 				colb = append(colb, collision.b...)
 				newCollisions = append(newCollisions, cola, colb)
