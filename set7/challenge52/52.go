@@ -67,9 +67,9 @@ func CheapestHashEver(message, initialState []byte) []byte {
 	return CheapestHashEverNoPad(Pad(message), initialState)
 }
 
-func CheapHash(message, initialState []byte) []byte {
+func CheapHashNoPad(message, initialState []byte) []byte {
 	// same as cheapest, but is a 3-byte hash instead of 2-bytes
-	input := Pad(message)
+	input := message
 	// var input []byte
 	// if len(message)%16 > 0 {
 	// 	input = challenge9.Pad(message, 16)
@@ -85,6 +85,10 @@ func CheapHash(message, initialState []byte) []byte {
 		h = enc[:3]
 	}
 	return h
+}
+
+func CheapHash(message, initialState []byte) []byte {
+	return CheapHashNoPad(Pad(message), initialState)
 }
 
 func BeefyHash(input, initialState []byte) []byte {

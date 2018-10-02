@@ -9,7 +9,7 @@ import (
 )
 
 func TestFindCollisions(t *testing.T) {
-	hashFunc := challenge52.CheapHash
+	hashFunc := challenge52.CheapHashNoPad
 	initialState := []byte{1, 2, 3}
 	preInput := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	preHash := hashFunc(preInput, initialState)
@@ -30,7 +30,7 @@ func TestFindCollisions(t *testing.T) {
 }
 
 func TestGetExpandables(t *testing.T) {
-	hashFunc := challenge52.CheapHash
+	hashFunc := challenge52.CheapHashNoPad
 	initialState := []byte{1, 2, 3}
 	k := 2
 	expandables := GetExpandables(hashFunc, initialState, k)
@@ -55,7 +55,7 @@ func TestGetExpandables(t *testing.T) {
 }
 
 func TestForgeLongMessage(t *testing.T) {
-	hashFunc := challenge52.CheapHash
+	hashFunc := challenge52.CheapHashNoPad
 	initialState := []byte{1, 2, 3}
 	m := []byte("One of the basic yardsticks we use to judge a cryptographic hash function is its resistance to second preimage attacks. That means that if Igive you x and y such that H(x) = y, you should have a tough time finding x' such that H(x') = H(x) = y. How tough??")
 	forgery := ForgeLongMessage(hashFunc, initialState, m)
@@ -63,7 +63,7 @@ func TestForgeLongMessage(t *testing.T) {
 	if len(m) != len(forgery) {
 		t.Fail()
 	}
-
+	hashFunc = challenge52.CheapHash
 	if !bytes.Equal(hashFunc(m, initialState), hashFunc(forgery, initialState)) {
 		t.Fail()
 	}
