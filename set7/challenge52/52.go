@@ -16,11 +16,10 @@ type Collision struct {
 	h []byte
 }
 
-// Pad makes input a multiple of 16 bytes
 func Pad(input []byte) []byte {
 	// Padding. Add a 1 bit and 0 bits
-	pad := new(bytes.Buffer)
 	length := len(input)
+	pad := new(bytes.Buffer)
 	var tmp [16]byte
 	tmp[0] = 0x80
 	if length%16 < 8 {
@@ -41,39 +40,31 @@ func Pad(input []byte) []byte {
 	return append(output, pad.Bytes()...)
 }
 
-func CheapestHashEver(message, initialState []byte) []byte {
+func CheapestHashEverNoPad(message, initialState []byte) []byte {
 	// Merkle-Damgard construction
 	// 1. pad the message to block size of 'compressor'
 	// 2. set an initial h value
 	// 3. for each block, set new h = C(m[i], previous_h)
 	// 4. run out of blocks, return h
-
 	// we're only going to be encrypting one block at a time
 	// we'll use aes in ecb mode
-
-	input := Pad(message)
-	// var input []byte
-	// if len(message)%16 > 0 {
-	// 	input = challenge9.Pad(message, 16)
-	// } else {
-	// 	input = message
-	// }
-
+	input := message
 	h := initialState
 
 	for i := 0; i < len(input); i += 16 {
 		currentBlock := input[i : i+16]
-
 		// h needs to be the 'key' for the encryption, so we'll need to make it 16 bytes long
 		hKey := Pad(h)
 		// hKey := challenge9.Pad(h, 16)
 		enc := challenge7.ECBEncrypter(currentBlock, hKey)
-
 		// our hash is only 2 bytes, so trim the output to the 2 most significant
 		h = enc[:2]
 	}
-
 	return h
+}
+
+func CheapestHashEver(message, initialState []byte) []byte {
+	return CheapestHashEverNoPad(Pad(message), initialState)
 }
 
 func CheapHash(message, initialState []byte) []byte {
@@ -110,12 +101,12 @@ func CheapestCollisionMachine(initialState []byte) *Collision {
 	var collision *Collision
 	hashes := make(map[string][]byte)
 	for {
-		a, b := make([]byte, 4), make([]byte, 4)
+		a, b := make([]byte, 16), make([]byte, 16) // block size
 		for bytes.Equal(a, b) {
 			rand.Read(a)
 			rand.Read(b)
 		}
-		h, h2 := CheapestHashEver(a, initialState), CheapestHashEver(b, initialState)
+		h, h2 := CheapestHashEverNoPad(a, initialState), CheapestHashEverNoPad(b, initialState)
 		hs, hs2 := fmt.Sprintf("%0x", h), fmt.Sprintf("%0x", h2)
 
 		if val, found := hashes[hs]; found {
@@ -148,26 +139,23 @@ func CheapestCollisionMachine(initialState []byte) *Collision {
 	return collision
 }
 
-func FindCheapestCollisions(n int) [][]byte {
+func FindCheapestCollisions(n int, initialState []byte) [][]byte {
 	var collisions [][]byte
-	initialState := []byte("hi")
 	fullCollisionLength := int(math.Pow(2, float64(n)))
 
+	state := initialState
+
 	for len(collisions) < fullCollisionLength {
-		collision := CheapestCollisionMachine(initialState)
-		initialState = collision.h
+		collision := CheapestCollisionMachine(state)
+		state = collision.h
 
 		// update our wild multicollisions array
 		newCollisions := [][]byte{}
 
 		if len(collisions) > 0 {
 			for _, c := range collisions {
-				cola := Pad(c)
-				colb := Pad(c)
-				// cola := challenge9.Pad(c, 16)
-				// colb := challenge9.Pad(c, 16)
-				cola = append(cola, collision.a...)
-				colb = append(colb, collision.b...)
+				cola := append(c, collision.a...)
+				colb := append(c, collision.b...)
 				newCollisions = append(newCollisions, cola, colb)
 			}
 		} else {
@@ -179,31 +167,25 @@ func FindCheapestCollisions(n int) [][]byte {
 	return collisions
 }
 
-func FindMultiCollision() *Collision {
-	// 	Pick the "cheaper" hash function (chepeast)
+func FindMultiCollision(initialState []byte) *Collision {
+	// 	Pick the "cheaper" hash function (cheapest)
 	//  Generate 2^(b2/2) colliding messages in it (2^12 colliding messages)
 	//  There's a good chance your message pool has a collision in cheap.
 	//  Find it.
-	initialState := []byte("hi")
 	cheapHashes := make(map[string][]byte)
 
 	var multiCollision *Collision
 
 	for multiCollision == nil {
-		collisions := FindCheapestCollisions(12)
-
+		collisions := FindCheapestCollisions(12, initialState)
 		for _, collision := range collisions {
 			h := CheapHash(collision, initialState)
 			hs := fmt.Sprintf("%0x", h)
 
 			if val, found := cheapHashes[hs]; found {
 				// this hash is already in the map
-				if !bytes.Equal(collision, val) {
-					if bytes.Equal(CheapestHashEver(collision, initialState), CheapestHashEver(val, initialState)) {
-						multiCollision = &Collision{a: collision, b: val, h: h}
-						break
-					}
-				}
+				multiCollision = &Collision{a: collision, b: val, h: h}
+				break
 			} else {
 				// hash isn't in the map yet, so update it
 				cheapHashes[hs] = collision
