@@ -1,2 +1,5 @@
 # cryptopals-go
-learning go by trying to solve the cryptopals challenges
+
+https://cryptopals.com
+
+if you haven't solved them, don't cheat. have a look at [cryptopals-resources](https://github.com/stripedpajamas/cryptopals-resources) for non-spoilers.
