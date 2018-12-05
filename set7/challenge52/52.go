@@ -70,17 +70,10 @@ func CheapestHashEver(message, initialState []byte) []byte {
 func CheapHashNoPad(message, initialState []byte) []byte {
 	// same as cheapest, but is a 3-byte hash instead of 2-bytes
 	input := message
-	// var input []byte
-	// if len(message)%16 > 0 {
-	// 	input = challenge9.Pad(message, 16)
-	// } else {
-	// 	input = message
-	// }
 	h := initialState
 	for i := 0; i < len(input); i += 16 {
 		currentBlock := input[i : i+16]
 		hKey := Pad(h)
-		// hKey := challenge9.Pad(h, 16)
 		enc := challenge7.ECBEncrypter(currentBlock, hKey)
 		h = enc[:3]
 	}
