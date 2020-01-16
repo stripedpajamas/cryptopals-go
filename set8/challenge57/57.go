@@ -1,14 +1,78 @@
 package challenge57
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"errors"
 	"fmt"
 	"math/big"
+	"math/rand"
+	"time"
 )
+
+// Residue represents the congruency (x == `remainder` mod `modulus`)
+// for computation using the Chinese Remainder Theorem
+type Residue struct {
+	remainder *big.Int
+	modulus   *big.Int
+}
 
 // DiscoverSecretKey attempts to recover the secret key of the other party
 // in a Diffie-Hellman key exchange
 func DiscoverSecretKey(p, g, q *big.Int, getBobMessage func(*big.Int) (string, []byte)) *big.Int {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	one := big.NewInt(1)
+	pMinus1 := new(big.Int).Sub(p, one)
+	factors := GetFactors(p, q)
+
+	residues := []*Residue{}
+
+	for _, r := range factors {
+		pm1r := new(big.Int).Quo(pMinus1, r)
+		h := big.NewInt(1)
+		for h.Cmp(one) == 0 {
+			h.Rand(rng, p).Exp(h, pm1r, p)
+		}
+
+		// pretend to bob that `h` is my public key, but `h` is not even a valid public key
+		msg, mac := getBobMessage(h)
+		rem, err := bruteForceMac(msg, mac, r)
+		if err != nil {
+			panic("could not discover secret key")
+		}
+		residues = append(residues, &Residue{
+			remainder: rem, modulus: r,
+		})
+	}
+
+	return SolveChineseRemainder(residues)
+}
+
+// SolveChineseRemainder takes residues (remainders and moduli) and computes
+// the smallest solution
+func SolveChineseRemainder(residues []*Residue) *big.Int {
 	return new(big.Int)
+}
+
+func bruteForceMac(msg string, mac []byte, max *big.Int) (*big.Int, error) {
+	bmsg := []byte(msg)
+
+	var myMac []byte
+	one := big.NewInt(1)
+	candidate := big.NewInt(0)
+	for !bytes.Equal(myMac, mac) && candidate.Cmp(max) < 0 {
+		candidate.Add(candidate, one)
+		h := hmac.New(sha256.New, candidate.Bytes())
+		h.Write(bmsg)
+		myMac = h.Sum(nil)
+	}
+
+	if !bytes.Equal(myMac, mac) {
+		return nil, errors.New("could not brute force mac")
+	}
+
+	return candidate, nil
 }
 
 // GetFactors takes as input `q`, where `g^q = 1 mod p`, and
@@ -54,7 +118,6 @@ func haveEnoughFactors(factors []*big.Int, target *big.Int) bool {
 }
 
 func isNotRepeatedFactor(factor *big.Int, factors []*big.Int) bool {
-	printFactors(factors)
 	one := big.NewInt(1)
 	for _, f := range factors {
 		if gcd := new(big.Int).GCD(nil, nil, f, factor); gcd.Cmp(one) != 0 {

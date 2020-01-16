@@ -42,6 +42,19 @@ func TestGetFactors(t *testing.T) {
 	}
 }
 
+func TestSolveChineseRemainder(t *testing.T) {
+	// two examples from wikipedia
+	residues := []*Residue{
+		&Residue{remainder: big.NewInt(2), modulus: big.NewInt(3)},
+		&Residue{remainder: big.NewInt(3), modulus: big.NewInt(5)},
+		&Residue{remainder: big.NewInt(2), modulus: big.NewInt(7)},
+	}
+	expected := big.NewInt(23)
+	if answer := SolveChineseRemainder(residues); answer.Cmp(expected) != 0 {
+		t.Errorf("wrong answer for chinese remainder problem; wanted %s, got %s", expected.String(), answer.String())
+	}
+}
+
 func TestDiscoverSecretKey(t *testing.T) {
 	t.SkipNow()
 	// modeling this attack as a malicious client (Eve) repeatedly
