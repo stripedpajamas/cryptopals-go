@@ -5,7 +5,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"errors"
-	"fmt"
 	"math/big"
 	"math/rand"
 	"time"
@@ -37,9 +36,9 @@ func DiscoverSecretKey(p, g, q *big.Int, getBobMessage func(*big.Int) (string, [
 
 		// pretend to bob that `h` is my public key, but `h` is not even a valid public key
 		msg, mac := getBobMessage(h)
-		rem, err := bruteForceMac(msg, mac, r)
+		rem, err := bruteForceMac(msg, mac, h, p, r)
 		if err != nil {
-			panic("could not discover secret key")
+			panic("could not brute force secret key")
 		}
 		residues = append(residues, &Residue{
 			remainder: rem, modulus: r,
@@ -52,10 +51,33 @@ func DiscoverSecretKey(p, g, q *big.Int, getBobMessage func(*big.Int) (string, [
 // SolveChineseRemainder takes residues (remainders and moduli) and computes
 // the smallest solution
 func SolveChineseRemainder(residues []*Residue) *big.Int {
-	return new(big.Int)
+	if len(residues) < 2 {
+		panic("not enough residues to compute solution")
+	}
+	acc := residues[0]
+	for i := 1; i < len(residues); i++ {
+		a1, a2 := acc.remainder, residues[i].remainder
+		n1, n2 := acc.modulus, residues[i].modulus
+		m1, m2 := new(big.Int), new(big.Int)
+
+		solution := new(big.Int).GCD(m1, m2, n1, n2)
+
+		left := new(big.Int).Mul(a1, m2)
+		left.Mul(left, n2)
+
+		right := new(big.Int).Mul(a2, m1)
+		right.Mul(right, n1)
+
+		solution.Add(left, right)
+		combined := new(big.Int).Mul(n1, n2)
+
+		solution.Mod(solution, combined)
+		acc = &Residue{remainder: solution, modulus: combined}
+	}
+	return acc.remainder
 }
 
-func bruteForceMac(msg string, mac []byte, max *big.Int) (*big.Int, error) {
+func bruteForceMac(msg string, mac []byte, myPubKey, p, max *big.Int) (*big.Int, error) {
 	bmsg := []byte(msg)
 
 	var myMac []byte
@@ -63,7 +85,8 @@ func bruteForceMac(msg string, mac []byte, max *big.Int) (*big.Int, error) {
 	candidate := big.NewInt(0)
 	for !bytes.Equal(myMac, mac) && candidate.Cmp(max) < 0 {
 		candidate.Add(candidate, one)
-		h := hmac.New(sha256.New, candidate.Bytes())
+		key := new(big.Int).Exp(myPubKey, candidate, p)
+		h := hmac.New(sha256.New, key.Bytes())
 		h.Write(bmsg)
 		myMac = h.Sum(nil)
 	}
@@ -85,7 +108,14 @@ func GetFactors(p, q *big.Int) []*big.Int {
 
 	factors := make([]*big.Int, 0)
 
-	current := big.NewInt(2)
+	// rule out evens
+	two := big.NewInt(2)
+	if _, rem := new(big.Int).QuoRem(j, two, new(big.Int)); rem.Sign() == 0 {
+		factors = append(factors, two)
+	}
+
+	// crush everything else
+	current := big.NewInt(3)
 	for !haveEnoughFactors(factors, q) {
 		if _, rem := new(big.Int).QuoRem(j, current, new(big.Int)); rem.Sign() == 0 {
 			// we have a factor, but we want to make sure it's not a repeated factor
@@ -93,16 +123,10 @@ func GetFactors(p, q *big.Int) []*big.Int {
 				factors = append(factors, current)
 			}
 		}
-		current = new(big.Int).Add(current, one)
+		current = new(big.Int).Add(current, two)
 	}
 
 	return factors
-}
-
-func printFactors(factors []*big.Int) {
-	for _, f := range factors {
-		fmt.Println(f.String())
-	}
 }
 
 // multiply all the factors together and see if they're > target size

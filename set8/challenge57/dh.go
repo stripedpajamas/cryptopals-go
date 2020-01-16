@@ -8,19 +8,20 @@ import "crypto/rand"
 type DH struct {
 	p *big.Int
 	g *big.Int
+	q *big.Int
 
 	secret *big.Int
 	public *big.Int
 }
 
 // NewDH returns a new Diffie Hellman instance
-func NewDH(p, g *big.Int) *DH {
-	return &DH{p: p, g: g}
+func NewDH(p, g, q *big.Int) *DH {
+	return &DH{p: p, g: g, q: q}
 }
 
 // Init generates and stores a secret value and produces a public value
 func (dh *DH) Init() (*big.Int, error) {
-	secret, err := rand.Int(rand.Reader, dh.p)
+	secret, err := rand.Int(rand.Reader, dh.q)
 	if err != nil {
 		return nil, err
 	}
